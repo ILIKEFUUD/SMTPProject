@@ -14,10 +14,10 @@ public class SMTPServer extends JFrame implements ActionListener{
     private JPanel jpCenter = new JPanel();
     private ServerThread sThread;
 
-    private Vector<User> users = new Vector<User>();
-    private File userFile = new File("user.obj");
+    private Vector<User> users = new Vector<User>();//Vector for a users on the server
+    private File userFile = new File("user.obj");//file that contains users
 
-    public static int SERVER_PORT = 32001;
+    public static int SERVER_PORT = 42069;
     private ServerSocket sSocket;
 
     public static void main(String[] args){
@@ -28,15 +28,13 @@ public class SMTPServer extends JFrame implements ActionListener{
         doLoadUsers();
         setupWindow();
 
-        jpNorth.add(jbStart);
+        jpNorth.add(jbStart);//add jbStart to GUI
         this.add(jpNorth, BorderLayout.NORTH);
 
 
-        jpCenter.add(jlLog);
+        jpCenter.add(jlLog);//add Log to the GUI
         jpCenter.add(new JScrollPane(jtaLog));
         this.add(jpCenter, BorderLayout.CENTER);
-
-
 
         jbStart.addActionListener(this);
 
@@ -58,7 +56,7 @@ public class SMTPServer extends JFrame implements ActionListener{
         this.setVisible(true);
 
     }
-
+    /** setupWindow - Sets parameters for the GUI window*/
     public void setupWindow(){
 
         this.setTitle("SMTPServer");
@@ -80,19 +78,19 @@ public class SMTPServer extends JFrame implements ActionListener{
 
         }
     }
-
+    /**doStart - creates and starts new serverThread*/
     public void doStart(){
         sThread = new ServerThread();
         sThread.start();
         jbStart.setText("Stop");
     }
-
+    /**doStop - calls kill method which ends the server*/
     public void doStop(){
         sThread.kill();
         jbStart.setText("Start");
 
     }
-
+    /**doLoadUsers - searches for User.obj file and reads it in. Users from the file are laoded into a vector of users*/
     public void doLoadUsers(){
         try{
             /*File IO to look for file*/
@@ -103,17 +101,18 @@ public class SMTPServer extends JFrame implements ActionListener{
             String fileName = "user.obj";//set file name
 
             File tempFile = new File(currentDir + "\\" + fileName);//set file to orders.obj in current directory
-            /*Check to see if user.obj exists and load objects into an array list.
-             */
+
+            /*Check to see if user.obj exists and load objects into an array list. */
             if(tempFile.exists()){
                 userFis = new FileInputStream(tempFile);
                 userIn = new ObjectInputStream(userFis);
                 for(int i = 0; i < tempFile.length(); i++){
-                    users.add((User)userIn.readObject());
+                    users.add((User)userIn.readObject());//read in and add users
                 }
                 userFis.close();//close input stream
 
             }
+            /* if file doesn't exist display window for user*/
             else{
                 JOptionPane.showMessageDialog(this, "Error: No User File Found");
             }
@@ -123,19 +122,18 @@ public class SMTPServer extends JFrame implements ActionListener{
 
     }
 
-
+    /**ServerThread - creates new server thread. Handles verification for client login*/
     class ServerThread extends Thread{
         private boolean running = true;
-        private boolean pass = false;
-        private ObjectOutputStream oos;
-        private ObjectInputStream ois;
+        private ObjectOutputStream output;
+        private ObjectInputStream input;
         private User tempUser;
 
 
         public ServerThread(){
 
         }
-
+        /*run - waits for client to connect to the socket. calls doCheck to verify user login creds*/
         public void run(){
 
             try{
@@ -152,33 +150,35 @@ public class SMTPServer extends JFrame implements ActionListener{
                 try{
                     cSocket = sSocket.accept();
 
-                    oos = new ObjectOutputStream(cSocket.getOutputStream());
-                    ois = new ObjectInputStream(cSocket.getInputStream());
+                    output = new ObjectOutputStream(cSocket.getOutputStream());
+                    input = new ObjectInputStream(cSocket.getInputStream());
+                    /*read in username and password from the client*/
+                    String userName = (String) input.readObject();
+                    String passWord = (String) input.readObject();
 
-                    String userName = (String) ois.readObject();
-                    String passWord = (String) ois.readObject();
-
-                    tempUser = doCheck(userName, passWord);
-
+                    tempUser = doCheck(userName, passWord);//check creds against user list
+                    /*if user is not returned as null, then a new client thread is created*/
                     if(tempUser != null){
                         jtaLog.append("User Connected: " + tempUser.getUserName() + "\n");
-                        ClientThread ct = new ClientThread(cSocket, tempUser);
+                        ClientThread ct = new ClientThread(cSocket, tempUser, output, input);
+                        output.writeObject("220 OK");
+                        output.flush();
                         ct.start();
-                        oos.writeObject("220 OK");
+
                     }
+                    /*If no user exists, return error to user*/
                     else{
-                        oos.writeObject("421: SERVICE NOT AVAILABLE");
+                        output.writeObject("421 SERVICE NOT AVAILABLE");
+                        output.flush();
                         jtaLog.append("User login failed");
                     }
 
-
                 }
-                catch(Exception e){System.out.println(e);}
+                catch(Exception e){}
             }
 
-            pass = false;
         }
-
+        /*kill - closes server socket and ends run loop*/
         public void kill(){
             try{
                 running = false;
@@ -186,15 +186,12 @@ public class SMTPServer extends JFrame implements ActionListener{
             }
             catch(Exception e){}
         }
-
-
+        /**doCheck - compares client creds against the creds stored in user.obj*/
         public User doCheck(String user, String pass){
             for(User userObj : users){
                 if(user.equals(userObj.getUserName()) && pass.equals(userObj.getPassWord())){
-
                     return userObj;
                 }
-
                 else{
                     return null;
                 }
@@ -202,34 +199,40 @@ public class SMTPServer extends JFrame implements ActionListener{
             return null;
         }
     }
-
+    /**ClientThread - each client receives its own thread. All functions of the SMTP Server are handled in this class*/
     class ClientThread extends Thread{
-        private Socket cSocket;
+        private Socket clientSocket;
         private ObjectOutputStream oos;
         private ObjectInputStream ois;
         private String name;
         private User clientUser;
 
+        /**ClientThread - passed in socket, user, oos, and ois*/
+        public ClientThread(Socket socket, User _user, ObjectOutputStream objOut, ObjectInputStream objIn){
+           try {
+               clientSocket = socket;
+               clientUser = _user;
+               oos = objOut;
+               ois = objIn;
+           }
 
-        public ClientThread(Socket socket, User _user){
-            cSocket = socket;
-            clientUser = _user;
+           catch(Exception e){jtaLog.append(e + "\n");}
 
-            name = "<" + cSocket.getInetAddress().getHostAddress() + ":" + cSocket.getPort() + "> ";//name is composed if the clients IP address and port number
-
+           /*get the ip address from the client*/
+            name = "<" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + "> ";//name is composed if the clients IP address and port number
         }
 
         public void run(){
             try{
-                while(true){
-                    oos = new ObjectOutputStream(cSocket.getOutputStream());
-                    ois = new ObjectInputStream(cSocket.getInputStream());
 
-                    String command = (String) ois.readObject();
+                while(true){
+                   String command = (String) ois.readObject();
+                    jtaLog.append("Command Received: " + command + "\n");
                     commands(command);
-                }
+               }
             }
-            catch(Exception e){}
+
+            catch(Exception e){jtaLog.append(e + "\n"); e.printStackTrace();}
         }
 
         public void commands(String command){
@@ -241,7 +244,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                 case "MAIL FROM":
                     break;
 
-                case "RCPT TO":
+                case "RCPT":
                     break;
 
                 case "DATA":
@@ -250,10 +253,37 @@ public class SMTPServer extends JFrame implements ActionListener{
                 case "QUIT":
                     break;
 
+                case "MAILBOX":
+                    doSendMailbox();
+                    break;
+
 
             }
         }
-    }
+        /*doSendMailbox*/
+        public void doSendMailbox() {
+           try {
+               Vector<MailConstants> sendBox;
+               sendBox = clientUser.getEmail();
+               oos.writeObject(sendBox);
+               oos.flush();
+               String receive = (String) ois.readObject();
+               System.out.println(receive);
+
+               if(receive.equals("INBOX RECEIVED")) {
+                   jtaLog.append("Inbox was received!" + "\n");
+                   return;
+               }
+               else{
+                   jtaLog.append("Inbox was not received." + "\n");
+                   }
+               }
+
+               catch(Exception e){jtaLog.append("Error sending Mailbox" + "\n");}
+           }
+
+
+    }//end ClientThread
 
 
 

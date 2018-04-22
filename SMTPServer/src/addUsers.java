@@ -17,6 +17,7 @@ public class addUsers implements Serializable{
             ObjectOutputStream userOut = new ObjectOutputStream(userFos);
             /*create new order*/
             User brennan = new User("brennan", "123");
+            brennan.getEmail().add(new MailConstants(false, "Brennan", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
 
 
             userOut.writeObject(brennan);//print object to object file
