@@ -1,5 +1,6 @@
-public class MailConstants{
-
+import java.io.*; 
+public class MailConstants implements Serializable{
+    public static final long serialVersionUID = 1L;
     public boolean isEncrypted;
     public String mailTo;
     public String mailFrom;

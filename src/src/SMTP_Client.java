@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.util.*;
 import javax.swing.event.*;
+import javax.swing.table.*;
 
 
 
@@ -66,10 +67,10 @@ class Login extends JFrame implements ActionListener{
    private JButton jbLogin = new JButton("Login");
    private JButton jbExit = new JButton("Exit");
 
-   private final static int SERVER_PORT = 32001;
+   private final static int SERVER_PORT = 42069;
    private Socket cSocket = null;
-   private ObjectOutputStream oos;
-   private ObjectInputStream ois;
+   private ObjectOutputStream oos = null;
+   private ObjectInputStream ois = null;
 
 
 
@@ -126,16 +127,7 @@ class Login extends JFrame implements ActionListener{
    public void actionPerformed(ActionEvent ae){
       switch(ae.getActionCommand()){
          case "Login":
-            System.out.println("Clicked login");
-            boolean login = doConnect(jtfUser.getText(), jtfPass.getText(), jtfIP.getText());
-            if(login == true){
-               try{
-                  new Inbox((Vector<MailConstants>) ois.readObject()); //creates Inbox for now
-               }catch(Exception e){
-                  System.out.println("ahhh");
-               }
-               this.dispose(); //destroys login window
-            }
+            doLogin();
             break;
          case "Exit":
             jtfUser.setText("");
@@ -143,6 +135,49 @@ class Login extends JFrame implements ActionListener{
             System.exit(0);
             break;
       }
+   }
+   /**
+   doLogin method
+   uses text fields to establish connection to server and
+   verify user
+   Creates main inbox value
+   */
+   public void doLogin(){
+     System.out.println("Clicked login");
+     boolean login = doConnect(jtfUser.getText(), jtfPass.getText(), jtfIP.getText());
+     if(login == true){
+        try{
+          oos.writeObject("MAILBOX");
+          Vector<MailConstants> mailbox;
+          Object b = ois.readObject();
+          mailbox = (Vector<MailConstants>) b;
+          System.out.println(mailbox);
+          //String = (String) ois.readObject();
+          
+          if(mailbox == null){
+            System.out.println("test");
+          }
+
+           new Inbox(mailbox); //creates Inbox for now
+           //System.out.println(test);
+           oos.writeObject("INBOX RECEIVED");
+           oos.flush();
+           this.setVisible(false); //destroys login window
+        }catch(Exception e){
+           e.printStackTrace();
+           try{
+             oos.writeObject("RECEPTION FAILED");
+           }
+           catch(IOException ioe){
+             JOptionPane.showMessageDialog(null, "IOException: " + ioe, "Error", JOptionPane.ERROR_MESSAGE);
+           }
+        }
+     }
+     else{
+       JOptionPane.showMessageDialog(null, "Login was unsuccesful, incorrect login", "Error", JOptionPane.ERROR_MESSAGE);
+     }
+     
+
    }
 
    /**
@@ -168,10 +203,13 @@ class Login extends JFrame implements ActionListener{
          String conn = "";
          try{
             conn = (String)ois.readObject();
+
+           
          }catch(Exception e){
             //weird error ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            e.printStackTrace();
          }
-         if(conn.contains("220 OK")){//username and password is correct
+         if(conn.equals("220 OK")){//username and password is correct
             return true;
          }else{
             return false;
@@ -181,7 +219,7 @@ class Login extends JFrame implements ActionListener{
          JOptionPane.showMessageDialog(null, "Unable to connect to server: " + e, "Connection Error", JOptionPane.ERROR_MESSAGE);
          e.printStackTrace();
          return false;
-      }
+      }//doConnect
    }
 
 }
@@ -199,7 +237,7 @@ class Inbox extends JFrame implements ActionListener{
    private JMenuItem jmiExit = new JMenuItem("Exit");
 
    //JTable for showing emails
-   private Vector<MyEmail> mailbox;
+   private Vector<MailConstants> mailbox;
    private Vector<String> columnNames = new Vector<String>();
    private Vector<Vector<String>> emailInfo = new Vector<Vector<String>>();
    private JTable jtInbox;
@@ -208,7 +246,7 @@ class Inbox extends JFrame implements ActionListener{
    /**
       Constructor for Inbox object, sets up the GUI
    */
-   public Inbox(Vector<MyEmail> mail){
+   public Inbox(Vector<MailConstants> mail){
 
       //column names
       columnNames.add("From");
@@ -231,7 +269,7 @@ class Inbox extends JFrame implements ActionListener{
       Vector<Vector> data = new Vector<Vector>(); //2d vector for data
 
 
-      for(MyEmail m : mailbox){
+      for(MailConstants m : mailbox){
         Vector<String> emailData = new Vector<String>(); //individual data for each email
         String from = m.getFrom();
         String subject = m.getSubject();
@@ -242,17 +280,15 @@ class Inbox extends JFrame implements ActionListener{
         data.add(emailData);
         emailInfo.add(emailData);
       }
-
-      jtInbox = new JTable(emailInfo, columnNames); //"I AM A NEGATIVE BITCH " --> Ben
-      
-      //implement clicking on email to open email
-      jtInbox.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-         public void valueChanged(ListSelectionEvent event){
-            //do stuff
-            
+/*
+      jtInbox.addMouseListener(new java.awt.event.MouseAdapter() {
+         public void mouseClicked(java.awt.event.MouseEvent evt) {
+            int row = jtInbox.rowAtPoint(evt.getPoint());
+            MailConstants called = mailbox.get(row);
+            new EmailDisplay(called);
          }
       });
-
+*/
       JScrollPane jspInbox = new JScrollPane(jtInbox);
       this.add(jspInbox, BorderLayout.CENTER);
 
@@ -260,6 +296,7 @@ class Inbox extends JFrame implements ActionListener{
       jmiExit.addActionListener(this);
 
       this.setVisible(true);
+      System.out.println("is this running?");
    }
 
    /**
@@ -283,7 +320,7 @@ class Inbox extends JFrame implements ActionListener{
 email GUI display class
 */
 class EmailDisplay extends JFrame{
-   
+   //GUI components
    private JPanel jpHeader = new JPanel();
    private JPanel jpFrom = new JPanel();
    private JLabel jlFrom = new JLabel("From: ");
@@ -293,8 +330,12 @@ class EmailDisplay extends JFrame{
    private JTextField jtfSubject = new JTextField(46);
    private JTextArea jtaMessage = new JTextArea();
    private JScrollPane jspMessage = new JScrollPane(jtaMessage);
-
-   public EmailDisplay(MyEmail e){
+   
+   /**
+   EmailDisplay constructor
+   @param email object e
+   */
+   public EmailDisplay(MailConstants e){
       this.setTitle("Email");
       this.setSize(600, 300);
       this.setLocation(100, 100);
@@ -352,6 +393,10 @@ class Draft extends JFrame implements ActionListener{
    //private JMenuItem jmiSExit = new JMenuItem("Save and Exit");
    //private JMenuItem jmiDExit = new JMenuItem("Discard and Exit");
 
+   /**
+   Draft constructor
+   creates and sets up GUI
+   */
    public Draft(){
       this.setTitle("Draft");
       this.setSize(600, 300);
@@ -393,20 +438,39 @@ class Draft extends JFrame implements ActionListener{
 
       this.setVisible(true);
    }
-   
 
+   /**
+   actionPerformed method for Draft GUI
+   handles Send, Save and Exit, and Discard and Exit buttons
+   */
    public void actionPerformed(ActionEvent ae){
       switch(ae.getActionCommand()){
          case "Send":
-            //
+            doSend();
             break;
          case "Save and Exit":
-            //
+            //Theoretically save the written data to a file, maybe CSV?
             break;
          case "Discard and Exit":
-            //
+            //Just exit
+            this.dispose();
             break;
       }
+   }
+   
+   /**
+   doSend method
+   creates email object and sends it to server using SMTP
+   */
+   public void doSend() {
+      MailConstants sending = new MailConstants(false, "", "", "", "", "", "");
+      sending.setTo(jtfTo.getText());
+      sending.setFrom("Tbd");
+      sending.setCC(jtfTo.getText());
+      DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+      sending.setDate(dtf.format(LocalDateTime.now()));
+      sending.setSubject(jtfSubject.getText());
+      sending.setMessage(jtaMessage.getText());
    }
 
 }
