@@ -467,10 +467,10 @@ class Draft extends JFrame implements ActionListener{
       sending.setTo(jtfTo.getText());
       sending.setFrom("Tbd");
       sending.setCC(jtfTo.getText());
-      DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
-      sending.setDate(dtf.format(LocalDateTime.now()));
-      sending.setSubject(jtfSubject.getText());
-      sending.setMessage(jtaMessage.getText());
+      //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+      //sending.setDate(dtf.format(LocalDateTime.now()));
+      //sending.setSubject(jtfSubject.getText());
+      //sending.setMessage(jtaMessage.getText());
    }
 
 }
