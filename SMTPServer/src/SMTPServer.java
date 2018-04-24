@@ -159,10 +159,11 @@ public class SMTPServer extends JFrame implements ActionListener{
                     tempUser = doCheck(userName, passWord);//check creds against user list
                     /*if user is not returned as null, then a new client thread is created*/
                     if(tempUser != null){
-                        jtaLog.append("User Connected: " + tempUser.getUserName() + "\n");
+                        jtaLog.append("Server: User Connected: " + tempUser.getUserName() + "\n");
                         ClientThread ct = new ClientThread(cSocket, tempUser, output, input);
                         output.writeObject("220 OK");
                         output.flush();
+                        jtaLog.append("Server: 220 OK" + "\n");
                         ct.start();
 
                     }
@@ -170,7 +171,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                     else{
                         output.writeObject("421 SERVICE NOT AVAILABLE");
                         output.flush();
-                        jtaLog.append("User login failed");
+                        jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
                     }
 
                 }
@@ -226,8 +227,10 @@ public class SMTPServer extends JFrame implements ActionListener{
             try{
 
                 while(true){
+                    System.out.println("running");
                    String command = (String) ois.readObject();
-                    jtaLog.append("Command Received: " + command + "\n");
+                   jtaLog.append(name + command + "\n");
+                    command = command.substring(0, 4);
                     commands(command);
                }
             }
@@ -239,21 +242,14 @@ public class SMTPServer extends JFrame implements ActionListener{
             switch(command){
 
                 case "HELO":
-                    break;
-
-                case "MAIL FROM":
-                    break;
-
-                case "RCPT":
-                    break;
-
-                case "DATA":
+                    doMail();
                     break;
 
                 case "QUIT":
+                    doQuit();
                     break;
 
-                case "MAILBOX":
+                case "MLBX":
                     doSendMailbox();
                     break;
 
@@ -261,30 +257,151 @@ public class SMTPServer extends JFrame implements ActionListener{
             }
         }
         /*doSendMailbox*/
-        public void doSendMailbox() {
+        public synchronized void doSendMailbox() {
            try {
                Vector<MailConstants> sendBox;
                sendBox = clientUser.getEmail();
                oos.writeObject(sendBox);
                oos.flush();
+               jtaLog.append("Server: Mailbox Sent" + "\n");
                String receive = (String) ois.readObject();
                System.out.println(receive);
 
                if(receive.equals("INBOX RECEIVED")) {
-                   jtaLog.append("Inbox was received!" + "\n");
-                   return;
+                   jtaLog.append(name + receive + "\n");
                }
                else{
-                   jtaLog.append("Inbox was not received." + "\n");
+                   jtaLog.append(name + "Inbox was not received." + "\n");
                    }
                }
 
-               catch(Exception e){jtaLog.append("Error sending Mailbox" + "\n");}
+               catch(Exception e){jtaLog.append("Server: Error sending Mailbox" + "\n");}
            }
+
+           public synchronized void doMail(){
+            String response;
+            String mailTo;
+            String mailFrom;
+            String date;
+            String subject;
+            String message = "";
+            String ccAddress;
+            Boolean encrypt;
+            int beginning;
+            int end;
+
+            try {
+                //MailConstants newEmail = new MailConstants(, , , , , , );
+                oos.writeObject("250 Hello" + name + "Nice to meet you");
+                oos.flush();
+                jtaLog.append("250 Hello Nice to meet you" + "\n");
+
+                /*MAILFROM BLOCK*/
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+
+                if (!response.contains("MAIL")) {
+                    oos.writeObject("421 SERVICE NOT AVAILABLE");
+                    oos.flush();
+                    jtaLog.append("Server: 421 SERVICE NOT AVAILABLE " + "\n");
+                    return;//break out of method?
+                } else {
+                    beginning = response.indexOf("<");
+                    end = response.indexOf(">");
+                    mailFrom = response.substring(beginning + 1, end);
+                    System.out.println(mailFrom);
+                    oos.writeObject("250 OK");
+                    oos.flush();
+                    jtaLog.append("Server: 250 OK Mail From : " + mailFrom + "\n");
+                }
+                /*End MAILFROM BLOCK*/
+
+                /*RCPT TO BLOCK*/
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+
+                if(!response.contains("RCPT")){
+
+                  oos.writeObject("421 SERVICE NOT AVAILABLE");
+                  oos.flush();
+                  jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
+                }
+
+                else{
+                 beginning = response.indexOf("<");
+                 end = response.indexOf(">");
+                mailTo = response.substring(beginning + 1, end);
+                oos.writeObject("250 OK");
+                oos.flush();
+                jtaLog.append("Server: 250 OK Mail To: " + mailTo + "\n");
+                 }
+                    /*END RCPT BLOCK*/
+
+                /*DATA BLOCK*/
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+
+                if(!response.contains("DATA")){
+                    oos.writeObject("421 SERVICE NOT AVAILABLE");
+                    oos.flush();
+                    jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
+                }
+                else{
+                    oos.writeObject("354 End DATA <CR><LF>.<CR><LF>");
+                    oos.flush();
+                    jtaLog.append("Server: 354 End DATA <CR><LF>.<CR><LF>" + "\n");
+                }
+                //appned to to log
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+                //append from to log
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+                beginning = response.indexOf(":");
+                ccAddress = response.substring(beginning);
+
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+                beginning = response.indexOf(":");
+                date = response.substring(beginning);
+
+                response = (String) ois.readObject();
+                jtaLog.append(name + response + "\n");
+                beginning = response.indexOf(":");
+                subject = response.substring(beginning );
+
+                while(!response.equals("\n" + "." + "\n" )){
+                    response = (String) ois.readObject();
+                    message += response + "\n";
+                    jtaLog.append("Server: Message Received : " + response + "\n");
+                }
+
+                oos.writeObject("250 OK Queued");
+                oos.flush();
+                jtaLog.append("Server: 250 OK" + "\n");
+                /*DATA BLOCK END*/
+
+
+
+                }//try
+
+               catch(Exception e){jtaLog.append("Server Exception: " + e);}//end catch
+           }//end doMail
+
+            public synchronized void doQuit() {
+                try {
+                    oos.writeObject("221 BYE");
+                    oos.flush();
+                    jtaLog.append("Server: 221 BYE");
+                    yield();
+                }
+                catch(Exception e){jtaLog.append("Server: " + e);}
+            }
 
 
     }//end ClientThread
-
-
 
 }//end SMTPServer
