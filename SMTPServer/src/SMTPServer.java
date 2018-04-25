@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import javax.swing.text.*;
 
 public class SMTPServer extends JFrame implements ActionListener{
 
@@ -16,6 +17,8 @@ public class SMTPServer extends JFrame implements ActionListener{
 
     private Vector<User> users = new Vector<User>();//Vector for a users on the server
     private File userFile = new File("user.obj");//file that contains users
+
+    private FIFOQueue<MailConstants> fifo = new FIFOQueue<MailConstants>();
 
     public static int SERVER_PORT = 42069;
     private ServerSocket sSocket;
@@ -30,6 +33,12 @@ public class SMTPServer extends JFrame implements ActionListener{
 
         jpNorth.add(jbStart);//add jbStart to GUI
         this.add(jpNorth, BorderLayout.NORTH);
+
+        /*The cursor in the log will constantly adjust to the lowest line*/
+        DefaultCaret caret = (DefaultCaret)jtaLog.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        jtaLog.setLineWrap(true);
+        jtaLog.setWrapStyleWord(true);
 
 
         jpCenter.add(jlLog);//add Log to the GUI
@@ -127,11 +136,12 @@ public class SMTPServer extends JFrame implements ActionListener{
         private boolean running = true;
         private ObjectOutputStream output;
         private ObjectInputStream input;
+        private PrintWriter pwt;
+        private Scanner scn;
         private User tempUser;
 
 
         public ServerThread(){
-
         }
         /*run - waits for client to connect to the socket. calls doCheck to verify user login creds*/
         public void run(){
@@ -150,27 +160,28 @@ public class SMTPServer extends JFrame implements ActionListener{
                 try{
                     cSocket = sSocket.accept();
 
-                    output = new ObjectOutputStream(cSocket.getOutputStream());
-                    input = new ObjectInputStream(cSocket.getInputStream());
+                    pwt = new PrintWriter(new OutputStreamWriter(cSocket.getOutputStream()));
+                    scn = new Scanner(new InputStreamReader(cSocket.getInputStream()));
+
                     /*read in username and password from the client*/
-                    String userName = (String) input.readObject();
-                    String passWord = (String) input.readObject();
+                    String userName = scn.nextLine();
+                    String passWord = scn.nextLine();
 
                     tempUser = doCheck(userName, passWord);//check creds against user list
                     /*if user is not returned as null, then a new client thread is created*/
                     if(tempUser != null){
                         jtaLog.append("Server: User Connected: " + tempUser.getUserName() + "\n");
-                        ClientThread ct = new ClientThread(cSocket, tempUser, output, input);
-                        output.writeObject("220 OK");
-                        output.flush();
-                        jtaLog.append("Server: 220 OK" + "\n");
+                        ClientThread ct = new ClientThread(cSocket, tempUser, pwt, scn);
+                        pwt.println("ACCEPTED");
+                        pwt.flush();
+                        jtaLog.append("Server: Login Accepted" + "\n");
                         ct.start();
 
                     }
                     /*If no user exists, return error to user*/
                     else{
-                        output.writeObject("421 SERVICE NOT AVAILABLE");
-                        output.flush();
+                        pwt.println("421 SERVICE NOT AVAILABLE");
+                        pwt.flush();
                         jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
                     }
 
@@ -194,7 +205,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                     return userObj;
                 }
                 else{
-                    return null;
+                    continue;
                 }
             }
             return null;
@@ -203,18 +214,19 @@ public class SMTPServer extends JFrame implements ActionListener{
     /**ClientThread - each client receives its own thread. All functions of the SMTP Server are handled in this class*/
     class ClientThread extends Thread{
         private Socket clientSocket;
-        private ObjectOutputStream oos;
-        private ObjectInputStream ois;
+
+        private PrintWriter pwt;
+        private Scanner scn;
         private String name;
         private User clientUser;
 
         /**ClientThread - passed in socket, user, oos, and ois*/
-        public ClientThread(Socket socket, User _user, ObjectOutputStream objOut, ObjectInputStream objIn){
+        public ClientThread(Socket socket, User _user, PrintWriter Out, Scanner In){
            try {
                clientSocket = socket;
                clientUser = _user;
-               oos = objOut;
-               ois = objIn;
+               pwt = Out;
+               scn = In;
            }
 
            catch(Exception e){jtaLog.append(e + "\n");}
@@ -227,15 +239,14 @@ public class SMTPServer extends JFrame implements ActionListener{
             try{
 
                 while(true){
-                    System.out.println("running");
-                   String command = (String) ois.readObject();
+                   String command = scn.nextLine();
                    jtaLog.append(name + command + "\n");
                     command = command.substring(0, 4);
                     commands(command);
                }
             }
 
-            catch(Exception e){jtaLog.append(e + "\n"); e.printStackTrace();}
+            catch(Exception e){/*jtaLog.append(e + "\n"); e.printStackTrace();*/}
         }
 
         public void commands(String command){
@@ -253,19 +264,24 @@ public class SMTPServer extends JFrame implements ActionListener{
                     doSendMailbox();
                     break;
 
+                default:
+                 break;
 
             }
         }
         /*doSendMailbox*/
         public synchronized void doSendMailbox() {
+             ObjectOutputStream oos;
+             ObjectInputStream ois;
            try {
+               oos = new ObjectOutputStream(clientSocket.getOutputStream());
+               ois = new ObjectInputStream(clientSocket.getInputStream());
                Vector<MailConstants> sendBox;
                sendBox = clientUser.getEmail();
                oos.writeObject(sendBox);
                oos.flush();
                jtaLog.append("Server: Mailbox Sent" + "\n");
                String receive = (String) ois.readObject();
-               System.out.println(receive);
 
                if(receive.equals("INBOX RECEIVED")) {
                    jtaLog.append(name + receive + "\n");
@@ -273,118 +289,119 @@ public class SMTPServer extends JFrame implements ActionListener{
                else{
                    jtaLog.append(name + "Inbox was not received." + "\n");
                    }
-               }
-
+               oos.close();
+               ois.close();
+           }
                catch(Exception e){jtaLog.append("Server: Error sending Mailbox" + "\n");}
            }
 
            public synchronized void doMail(){
             String response;
-            String mailTo;
+            String mailTo = "";
             String mailFrom;
             String date;
             String subject;
             String message = "";
             String ccAddress;
-            Boolean encrypt;
+            Boolean encrypt = true;
             int beginning;
             int end;
 
             try {
-                //MailConstants newEmail = new MailConstants(, , , , , , );
-                oos.writeObject("250 Hello" + name + "Nice to meet you");
-                oos.flush();
+                pwt.println("250 Hello" + name + "Nice to meet you");
+                pwt.flush();
                 jtaLog.append("250 Hello Nice to meet you" + "\n");
 
                 /*MAILFROM BLOCK*/
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
 
                 if (!response.contains("MAIL")) {
-                    oos.writeObject("421 SERVICE NOT AVAILABLE");
-                    oos.flush();
+                    pwt.println("421 SERVICE NOT AVAILABLE");
+                    pwt.flush();
                     jtaLog.append("Server: 421 SERVICE NOT AVAILABLE " + "\n");
                     return;//break out of method?
                 } else {
                     beginning = response.indexOf("<");
                     end = response.indexOf(">");
                     mailFrom = response.substring(beginning + 1, end);
-                    System.out.println(mailFrom);
-                    oos.writeObject("250 OK");
-                    oos.flush();
+                    pwt.println("250 OK");
+                    pwt.flush();
                     jtaLog.append("Server: 250 OK Mail From : " + mailFrom + "\n");
                 }
                 /*End MAILFROM BLOCK*/
 
                 /*RCPT TO BLOCK*/
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
 
                 if(!response.contains("RCPT")){
 
-                  oos.writeObject("421 SERVICE NOT AVAILABLE");
-                  oos.flush();
-                  jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
+                  pwt.println("421 SERVICE NOT AVAILABLE");
+                  pwt.flush();
+                  jtaLog.append("Server: 421 SERVICE NOT AVAILABLE" + "\n");
+                  return;
                 }
 
                 else{
                  beginning = response.indexOf("<");
                  end = response.indexOf(">");
                 mailTo = response.substring(beginning + 1, end);
-                oos.writeObject("250 OK");
-                oos.flush();
+                pwt.println("250 OK");
+                pwt.flush();
                 jtaLog.append("Server: 250 OK Mail To: " + mailTo + "\n");
                  }
                     /*END RCPT BLOCK*/
 
                 /*DATA BLOCK*/
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
 
                 if(!response.contains("DATA")){
-                    oos.writeObject("421 SERVICE NOT AVAILABLE");
-                    oos.flush();
+                    pwt.println("421 SERVICE NOT AVAILABLE");
+                    pwt.flush();
                     jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
                 }
                 else{
-                    oos.writeObject("354 End DATA <CR><LF>.<CR><LF>");
-                    oos.flush();
+                    pwt.println("354 End DATA <CR><LF>.<CR><LF>");
+                    pwt.flush();
                     jtaLog.append("Server: 354 End DATA <CR><LF>.<CR><LF>" + "\n");
                 }
                 //appned to to log
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 //append from to log
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
 
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 ccAddress = response.substring(beginning);
 
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 date = response.substring(beginning);
 
-                response = (String) ois.readObject();
+                response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 subject = response.substring(beginning );
 
                 while(!response.equals("\n" + "." + "\n" )){
-                    response = (String) ois.readObject();
+                    response = scn.nextLine();
                     message += response + "\n";
                     jtaLog.append("Server: Message Received : " + response + "\n");
                 }
 
-                oos.writeObject("250 OK Queued");
-                oos.flush();
+                pwt.println("250 OK Queued");
+                pwt.flush();
                 jtaLog.append("Server: 250 OK" + "\n");
                 /*DATA BLOCK END*/
 
-
+                MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
+                fifo.enqueue(newEmail);
 
                 }//try
 
@@ -393,8 +410,8 @@ public class SMTPServer extends JFrame implements ActionListener{
 
             public synchronized void doQuit() {
                 try {
-                    oos.writeObject("221 BYE");
-                    oos.flush();
+                    pwt.println("221 BYE");
+                    pwt.flush();
                     jtaLog.append("Server: 221 BYE");
                     yield();
                 }
