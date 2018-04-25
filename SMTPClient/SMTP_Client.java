@@ -22,8 +22,10 @@ Contains inner classes for the different windows: Login, Inbox, and Draft.
 Main driver handles all of the SMTP
 */
 public class SMTP_Client{
-   public ObjectOutputStream oos;
+   public PrintWriter pwt;
+   public Scanner scan;
    public ObjectInputStream ois;
+   public Socket cSocket = null;
    /**
       @param String array of arguments from command line
       creates new client object
@@ -69,7 +71,7 @@ public class SMTP_Client{
       private JButton jbExit = new JButton("Exit");
    
       private final static int SERVER_PORT = 42069;
-      private Socket cSocket = null;
+      
       
    
    
@@ -147,29 +149,18 @@ public class SMTP_Client{
          boolean login = doConnect(jtfUser.getText(), jtfPass.getText(), jtfIP.getText());
          if(login == true){
             try{
-               oos.writeObject("MLBX");
-               Vector<MailConstants> mailbox;
-               Object b = ois.readObject();
-               mailbox = (Vector<MailConstants>) b;
-               System.out.println(mailbox);
-            //String = (String) ois.readObject();
-            
-               if(mailbox == null){
-                  System.out.println("test");
-               }
-            
-               new Inbox(mailbox); //creates Inbox for now
+               new Inbox();
             //System.out.println(test);
-               oos.writeObject("INBOX RECEIVED");
-               oos.flush();
+               pwt.println("LOGGED IN");
+               pwt.flush();
                this.setVisible(false); //destroys login window
             }catch(Exception e){
                e.printStackTrace();
                try{
-                  oos.writeObject("RECEPTION FAILED");
+                  pwt.println("RECEPTION FAILED");
                }
-               catch(IOException ioe){
-                  JOptionPane.showMessageDialog(null, "IOException: " + ioe, "Error", JOptionPane.ERROR_MESSAGE);
+               catch(Exception ne){
+                  JOptionPane.showMessageDialog(null, "Exception: " + e, "Another Error while throwing error", JOptionPane.ERROR_MESSAGE);
                }
             }
          }
@@ -191,27 +182,33 @@ public class SMTP_Client{
          
             cSocket = new Socket(ip, SERVER_PORT); //create client socket
          //create output and inputstreams to communicate between login and server
-            oos = new ObjectOutputStream(cSocket.getOutputStream());
-            ois = new ObjectInputStream(cSocket.getInputStream());
+            pwt = new PrintWriter(new OutputStreamWriter(cSocket.getOutputStream()));
+            scan = new Scanner(new InputStreamReader(cSocket.getInputStream()));
+            
+            //make object inputstream for getting mailbox
+            
+            
+            
          //send server the username and password
-            oos.writeObject(userName);
-            oos.flush();
-            oos.writeObject(password);
-            oos.flush();
+            pwt.println(userName);
+            pwt.flush();
+            pwt.println(password);
+            pwt.flush();
          
          //read in returned string from the server
             String conn = "";
             try{
-               conn = (String)ois.readObject();
-            
+               conn = scan.nextLine();
+               System.out.println(conn);
             
             }catch(Exception e){
             //weird error ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                e.printStackTrace();
             }
-            if(conn.equals("220 OK")){//username and password is correct
+            if(conn.contains("ACCEPTED")){//username and password is correct
                return true;
             }else{
+               System.out.println(conn);
                return false;
             }
          }
@@ -235,6 +232,7 @@ public class SMTP_Client{
       private JMenu jmMenu = new JMenu("File");
       private JMenuItem jmiDraft = new JMenuItem("Draft");
       private JMenuItem jmiExit = new JMenuItem("Exit");
+      private JMenuItem jmiMailbox = new JMenuItem("Mailbox");
    
    //JTable for showing emails
       private Vector<MailConstants> mailbox;
@@ -243,12 +241,13 @@ public class SMTP_Client{
       private JTable jtInbox;
       private int mailCount = 0;
    
+     
       
    
    /**
       Constructor for Inbox object, sets up the GUI
    */
-      public Inbox(Vector<MailConstants> mail){
+      public Inbox(){
          
       //column names
          columnNames.add("From");
@@ -265,38 +264,13 @@ public class SMTP_Client{
          jmbBar.add(jmMenu);
          jmMenu.add(jmiDraft);
          jmMenu.add(jmiExit);
+         jmMenu.add(jmiMailbox);
+         
       
-      //create vector for JTable
-         mailbox = mail;
-         Vector<Vector> data = new Vector<Vector>(); //2d vector for data
-      
-      
-         for(MailConstants m : mailbox){
-            Vector<String> emailData = new Vector<String>(); //individual data for each email
-            String from = m.getFrom();
-            String subject = m.getSubject();
-            String date = m.getDate();
-            emailData.add(from);
-            emailData.add(subject);
-            emailData.add(date);
-            data.add(emailData);
-            emailInfo.add(emailData);
-         }
-      /*
-      jtInbox.addMouseListener(new java.awt.event.MouseAdapter() {
-         public void mouseClicked(java.awt.event.MouseEvent evt) {
-            int row = jtInbox.rowAtPoint(evt.getPoint());
-            MailConstants called = mailbox.get(row);
-            new EmailDisplay(called);
-         }
-      });
-      */
-         JScrollPane jspInbox = new JScrollPane(jtInbox);
-         this.add(jspInbox, BorderLayout.CENTER);
       
          jmiDraft.addActionListener(this);
          jmiExit.addActionListener(this);
-      
+         jmiMailbox.addActionListener(this);
          this.setVisible(true);
       
       }
@@ -313,7 +287,60 @@ public class SMTP_Client{
             case "Exit":
                System.exit(0);
                break;
+            case "Mailbox":
+               try{
+                  pwt.println("MLBX");
+                  pwt.close();
+                  ois = new ObjectInputStream(cSocket.getInputStream());
+                  
+                  mailbox = (Vector<MailConstants>) ois.readObject();
+                  System.out.println(mailbox == null);
+                  System.out.println(mailbox);
+                  //read in mailbox, closing objectinputstream
+                  ois.close();
+                  //pwt = new PrintWriter(new OutputStreamWriter(cSocket.getOutputStream()));
+               }catch(Exception ioe){
+                  System.out.println("ahhhohno");
+               }
+               refresh();
+               break;
          }
+      }
+      
+      
+      public void refresh(){
+      
+         //create vector for JTable
+         
+         Vector<Vector> data = new Vector<Vector>(); //2d vector for data
+      
+      
+         for(MailConstants m : mailbox){
+            Vector<String> emailData = new Vector<String>(); //individual data for each email
+            String from = m.getFrom();
+            String subject = m.getSubject();
+            String date = m.getDate();
+            emailData.add(from);
+            emailData.add(subject);
+            emailData.add(date);
+            data.add(emailData);
+            emailInfo.add(emailData);
+         }
+         
+         jtInbox = new JTable(data, columnNames);
+      
+         jtInbox.addMouseListener(
+            new java.awt.event.MouseAdapter() {
+               public void mouseClicked(java.awt.event.MouseEvent evt) {
+                  int row = jtInbox.rowAtPoint(evt.getPoint());
+                  MailConstants called = mailbox.get(row);
+                  new EmailDisplay(called);
+               }
+            });
+      
+         JScrollPane jspInbox = new JScrollPane(jtInbox);
+         this.add(jspInbox, BorderLayout.CENTER);
+         this.setVisible(true);
       }
    
    }
@@ -341,7 +368,7 @@ email GUI display class
          this.setTitle("Email");
          this.setSize(600, 300);
          this.setLocation(100, 100);
-         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
          this.setLayout(new BorderLayout());
       
          jpFrom.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -402,11 +429,11 @@ email GUI display class
    creates and sets up GUI
    */
       public Draft(){
-
+      
          this.setTitle("Draft");
          this.setSize(600, 300);
          this.setLocation(100, 100);
-         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
          this.setLayout(new BorderLayout());
       
       //this.setJMenuBar(jmbBar);
@@ -489,103 +516,103 @@ email GUI display class
    */
       private void SMTPSend(MailConstants email){ 
       //when sending email, say HELO first
-      try{
-         System.out.println("running send");
+         try{
+            System.out.println("running send");
          
-         oos.writeObject("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         oos.flush();
-      //get reply
-         String reply = (String) ois.readObject();
-         System.out.println("reading in reply");
-         if(reply.substring(0,3).equals("250")){
-            
-         //ok to send the from
-            String send = "MAIL FROM:<" + email.getFrom() + ">";
-            System.out.println(send);
-            oos.writeObject(send);
-            oos.flush();
+            pwt.println("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            pwt.flush();
          //get reply
-            reply = (String) ois.readObject();
+            String reply =  scan.nextLine();
+            System.out.println("reading in reply");
             if(reply.substring(0,3).equals("250")){
-            //ok to send to's
-            //send the one 'to' 
-               oos.writeObject("RCPT TO:<" + email.getTo() + ">");
-               oos.flush();
+            
+            //ok to send the from
+               String send = "MAIL FROM:<" + email.getFrom() + ">";
+               System.out.println(send);
+               pwt.println(send);
+               pwt.flush();
+            //get reply
+               reply =  scan.nextLine();
+               if(reply.substring(0,3).equals("250")){
+               //ok to send to's
+               //send the one 'to' 
+                  pwt.println("RCPT TO:<" + email.getTo() + ">");
+                  pwt.flush();
                
                //now send DATA, then send actual email stuff
-               reply = (String) ois.readObject();
-               if(reply.substring(0,3).equals("250")){
+                  reply =  scan.nextLine();
+                  if(reply.substring(0,3).equals("250")){
                   //ok to send DATA
                   //tell server I am sending an email over
-                  oos.writeObject("DATA");
-                  oos.flush();
-                  reply = (String) ois.readObject();
-                  if(reply.substring(0,3).equals("354")){
+                     pwt.println("DATA");
+                     pwt.flush();
+                     reply =  scan.nextLine();
+                     if(reply.substring(0,3).equals("354")){
                      //send every data field in MailConstants
-                     oos.writeObject("From:" + email.getFrom());
-                     oos.flush();
+                        pwt.println("From:" + email.getFrom());
+                        pwt.flush();
                      
-                     oos.writeObject("To:" + email.getTo());
-                     oos.flush();
+                        pwt.println("To:" + email.getTo());
+                        pwt.flush();
                      
-                     oos.writeObject("Cc:" + email.getCC());
-                     oos.flush();
+                        pwt.println("Cc:" + email.getCC());
+                        pwt.flush();
                      
-                     oos.writeObject("Date:" + email.getDate());
-                     oos.flush();
+                        pwt.println("Date:" + email.getDate());
+                        pwt.flush();
                      
-                     oos.writeObject("Subject:" + email.getSubject());
-                     oos.flush();
+                        pwt.println("Subject:" + email.getSubject());
+                        pwt.flush();
                      
                      //send message
-                     String[] message = email.getMessage().split("\n");
-                     for(String line : message){//send message line by line
-                        oos.writeObject(line);
-                        oos.flush();                     
-                     }
+                        String[] message = email.getMessage().split("\n");
+                        for(String line : message){//send message line by line
+                           pwt.println(line);
+                           pwt.flush();                     
+                        }
                      //endof message
                      //send the carriage return lf 
-                     oos.writeObject("\n.\n");
+                        pwt.println("\n.\n");
                      
                      //see if server responded with OK
-                     reply = (String) ois.readObject();
-                     if(reply.substring(0,3).equals("250")){
+                        reply =  scan.nextLine();
+                        if(reply.substring(0,3).equals("250")){
                         //reply with QUIT
-                        oos.writeObject("QUIT");
-                        oos.flush();
+                           pwt.println("QUIT");
+                           pwt.flush();
                         
                         //server replies with 221 bye
-                        reply = (String) ois.readObject();
-                        if(reply.substring(0,3).equals("221")){
+                           reply =  scan.nextLine();
+                           if(reply.substring(0,3).equals("221")){
                            //done sending email
-                           this.dispose();
-                        }
+                              this.dispose();
+                           }
                         
+                        }else{
+                           System.out.println("broke");
+                        }
                      }else{
                         System.out.println("broke");
                      }
+                  
+                  
                   }else{
                      System.out.println("broke");
                   }
-                  
-                  
+               
                }else{
                   System.out.println("broke");
-               }
                
+               } 
             }else{
-               System.out.println("broke");
-               
-            } 
-         }else{
-         //SERVICE NOT AVAILABLE
-            System.out.println(reply);
-            return;//break out of send
+            //SERVICE NOT AVAILABLE
+               System.out.println(reply);
+               return;//break out of send
+            }
+         
+         }catch(Exception e){
+            e.printStackTrace();
          }
-      
-      }catch(Exception e){
-         e.printStackTrace();
-      }
       }
    
    }
