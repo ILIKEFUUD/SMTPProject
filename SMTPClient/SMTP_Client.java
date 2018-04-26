@@ -233,6 +233,7 @@ public class SMTP_Client{
       private JMenuItem jmiDraft = new JMenuItem("Draft");
       private JMenuItem jmiExit = new JMenuItem("Exit");
       private JMenuItem jmiMailbox = new JMenuItem("Mailbox");
+      private JMenuItem jmiMailbox = new JMenuItem("Mailbox");
    
    //JTable for showing emails
       private Vector<MailConstants> mailbox;
@@ -266,6 +267,9 @@ public class SMTP_Client{
          jmMenu.add(jmiExit);
          jmMenu.add(jmiMailbox);
          
+         //create thread to listen for emails
+         InboxThread it = new InboxThread();
+         it.start();
       
       
          jmiDraft.addActionListener(this);
@@ -274,6 +278,8 @@ public class SMTP_Client{
          this.setVisible(true);
       
       }
+      
+      
    
    /**
       @param ActionEvent ae - draft or exit button click
@@ -307,7 +313,11 @@ public class SMTP_Client{
          }
       }
       
-      
+      /*
+      refresh method
+      asks server for the mailbox initially
+      -optional, just what our group wanted to do
+      */ 
       public void refresh(){
       
          //create vector for JTable
@@ -359,6 +369,8 @@ email GUI display class
       private JTextField jtfSubject = new JTextField(46);
       private JTextArea jtaMessage = new JTextArea();
       private JScrollPane jspMessage = new JScrollPane(jtaMessage);
+      
+      
    
    /**
    EmailDisplay constructor
@@ -382,6 +394,7 @@ email GUI display class
          jpSubject.add(jtfSubject);
          jtfSubject.setText(e.getSubject());
          jtfSubject.setEditable(false);
+         
       
          jpHeader.setLayout(new GridLayout(2, 1));
          jpHeader.add(jpFrom);
@@ -415,7 +428,7 @@ email GUI display class
       private JPanel jpRahul = new JPanel();
       private JButton jbSend = new JButton("Send");
       private JButton jbExit = new JButton("Exit");
-   
+      private JCheckBox jcbEncrypted = new JCheckBox("Enrypted");
       
    
    //private JMenuBar jmbBar = new JMenuBar();
@@ -451,6 +464,7 @@ email GUI display class
          jpTo.setLayout(new FlowLayout(FlowLayout.LEFT));
          jpTo.add(jlTo);
          jpTo.add(jtfTo);
+         jpTo.add(jcbEncrypted);
       
          jpSubject.setLayout(new FlowLayout(FlowLayout.LEFT));
          jpSubject.add(jlSubject);
@@ -505,6 +519,12 @@ email GUI display class
          sending.setDate("Today");
          sending.setSubject(jtfSubject.getText());
          sending.setMessage(jtaMessage.getText());
+         
+         //get if encrypted
+         if(jcbEncrypted.isSelected()){
+            //encrypted is true
+            sending.setEncrypted(true);
+         }
       
       //email object created
       //SMTP it
@@ -615,5 +635,25 @@ email GUI display class
          }
       }
    
+   }//end of class draft
+   
+   /**
+   Thread that continuously waits for emails, SMTP's the emails in and then redraws the JTable
+   */
+   class InboxThread extends Thread{
+      
+      /**
+         override run method
+      */
+      public void run(){
+         //check if incoming mail
+         String serverReply = scan.nextLine();
+         if(serverReply.contains("HELO")){//I have an email coming in 
+            
+         }
+      }
+      
+      
    }
-}
+   
+}//end of class
