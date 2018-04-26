@@ -12,6 +12,7 @@ public class User implements Serializable {
     public User(String user, String pass) {
         userName = user;
         passWord = pass;
+
     }
 
 

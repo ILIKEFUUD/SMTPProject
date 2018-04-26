@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 public class addUsers implements Serializable{
     public static final long serialVersionUID = 1L;
@@ -22,6 +23,13 @@ public class addUsers implements Serializable{
             student.getEmail().add(new MailConstants(false, "Student", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
             User test = new User("test123", "test123");
             test.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
+
+            InetAddress IP = InetAddress.getLocalHost();
+
+            brennan.setIP(IP.getHostAddress());
+            student.setIP(IP.getHostAddress());
+            test.setIP(IP.getHostAddress());
+
             userOut.writeObject(brennan);//print object to object file
             userOut.writeObject(student);
             userOut.writeObject(test);

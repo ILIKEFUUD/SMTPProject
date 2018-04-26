@@ -19,6 +19,7 @@ public class SMTPServer extends JFrame implements ActionListener{
     private File userFile = new File("user.obj");//file that contains users
 
     private FIFOQueue<MailConstants> fifo = new FIFOQueue<MailConstants>();
+    private FIFOHandler queue = new FIFOHandler();//Create new FIFOHandler
 
     public static int SERVER_PORT = 42069;
     private ServerSocket sSocket;
@@ -92,6 +93,7 @@ public class SMTPServer extends JFrame implements ActionListener{
         sThread = new ServerThread();
         sThread.start();
         jbStart.setText("Stop");
+        queue.start();//When the server is started the FIFOHAndler will start as well. No Clients need to be connected to handle incoming mail
     }
     /**doStop - calls kill method which ends the server*/
     public void doStop(){
@@ -195,6 +197,8 @@ public class SMTPServer extends JFrame implements ActionListener{
             try{
                 running = false;
                 sSocket.close();
+                queue.interrupt();//interupt running FIFOHandler
+
             }
             catch(Exception e){}
         }
@@ -422,17 +426,59 @@ public class SMTPServer extends JFrame implements ActionListener{
     }//end ClientThread
 
     public class FIFOHandler extends Thread{
+        MailConstants newEmail;
 
         public FIFOHandler() {
 
-            while(fifo.empty() != true) {
+        }
 
-                
+        public void run(){
+
+            while(fifo.empty() != true) {
+                process();
+            }
+
+        }
+        
+        private synchronized void process() {
+            try {
+                newEmail = fifo.dequeue();
+            }
+
+            catch(FIFOQueueException e) { jtaLog.append("Server: " + e);}
+
+            String To = newEmail.getTo();
+            int breakPoint = To.indexOf("@");
+            String mailTo = To.substring(0,breakPoint);
+            String ip = To.substring(breakPoint+1);
+            boolean locateUser = onServer(mailTo, ip);
+
+            if(locateUser == true){
+                saveEmail(mailTo, newEmail);
+            }
+            else{
+                /*We will relay the email here by calling a Relay Class*/
             }
 
 
-        }
+        }//process
 
+        private synchronized void saveEmail(String userName, MailConstants newMail){
+            /*Add email to users mailBox vector then save vector to a file*/
+        }
+        /*Determines if the user is on our server or not based on user name and ip address*/
+        private boolean onServer(String name, String ip) {
+
+            for(User user: users) {
+                if(name.equals(user.getUserName()) && ip.equals(user.getIP())){
+                    return true;
+                }
+                else{
+                    continue;
+                }
+            }
+            return false;
+        }
     }
 
 }//end SMTPServer
