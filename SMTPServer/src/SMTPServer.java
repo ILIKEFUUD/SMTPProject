@@ -421,4 +421,18 @@ public class SMTPServer extends JFrame implements ActionListener{
 
     }//end ClientThread
 
+    public class FIFOHandler extends Thread{
+
+        public FIFOHandler() {
+
+            while(fifo.empty() != true) {
+
+                
+            }
+
+
+        }
+
+    }
+
 }//end SMTPServer
