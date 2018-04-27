@@ -26,6 +26,8 @@ public class SMTP_Client{
    public Scanner scan;
    public ObjectInputStream ois;
    public Socket cSocket = null;
+   public String username = null;
+   public HashMap<Character,Character> rot13 = null;
    /**
       @param String array of arguments from command line
       creates new client object
@@ -153,6 +155,7 @@ public class SMTP_Client{
             //System.out.println(test);
                pwt.println("LOGGED IN");
                pwt.flush();
+               username = jtfUser.getText();
                this.setVisible(false); //destroys login window
             }catch(Exception e){
                e.printStackTrace();
@@ -232,8 +235,7 @@ public class SMTP_Client{
       private JMenu jmMenu = new JMenu("File");
       private JMenuItem jmiDraft = new JMenuItem("Draft");
       private JMenuItem jmiExit = new JMenuItem("Exit");
-      private JMenuItem jmiMailbox = new JMenuItem("Mailbox");
-      private JMenuItem jmiMailbox = new JMenuItem("Mailbox");
+      private JMenuItem jmiMailbox = new JMenuItem("Refresh");
    
    //JTable for showing emails
       private Vector<MailConstants> mailbox;
@@ -241,7 +243,7 @@ public class SMTP_Client{
       private Vector<Vector<String>> emailInfo = new Vector<Vector<String>>();
       private JTable jtInbox;
       private int mailCount = 0;
-   
+      
      
       
    
@@ -249,6 +251,27 @@ public class SMTP_Client{
       Constructor for Inbox object, sets up the GUI
    */
       public Inbox(){
+      
+      
+      //hashmap for encryption
+      rot13 = new HashMap<Character, Character>();
+      for(int i = 65; i <= 90; i++){
+         if(i >= 77){
+            rot13.put((Character) ((char)i), (Character) (char)(i-13));
+         }else{
+            rot13.put((Character) ((char)i), (Character) (char)(i+13));
+         }
+      }
+      for(int i = 97; i <= 122; i++){
+         if(i >= 77){
+            rot13.put((Character) ((char)i), (Character) (char)(i-13));
+         }else{
+            rot13.put((Character) ((char)i), (Character) (char)(i+13));
+         }
+      }    
+      
+      //now there is a hashmap for the ROT13
+      
          
       //column names
          columnNames.add("From");
@@ -266,10 +289,6 @@ public class SMTP_Client{
          jmMenu.add(jmiDraft);
          jmMenu.add(jmiExit);
          jmMenu.add(jmiMailbox);
-         
-         //create thread to listen for emails
-         InboxThread it = new InboxThread();
-         it.start();
       
       
          jmiDraft.addActionListener(this);
@@ -293,7 +312,7 @@ public class SMTP_Client{
             case "Exit":
                System.exit(0);
                break;
-            case "Mailbox":
+            case "Refresh":
                try{
                   pwt.println("MLBX");
                   pwt.close();
@@ -401,13 +420,20 @@ email GUI display class
          jpHeader.add(jpSubject);
       
          jtaMessage.setEditable(false);
-         jtaMessage.setText(e.getMessage());
+         //decrypt if encrypted
+         if(e.getEncrypted()){
+            jtaMessage.setText(rot13(e.getMessage())); //set text as decrypted message
+         }else{
+            jtaMessage.setText(e.getMessage());
+         }
+         
       
          this.add(jpHeader, BorderLayout.NORTH);
          this.add(jspMessage, BorderLayout.CENTER);
       
          this.setVisible(true);
       }
+      
    }
 
 /**
@@ -512,18 +538,22 @@ email GUI display class
       public void doSend() {
          MailConstants sending = new MailConstants(false, "", "", "", "", "", "");
          sending.setTo(jtfTo.getText());
-         sending.setFrom("BEN BLAIR");
+         sending.setFrom(username);
          sending.setCC(jtfTo.getText());
-      //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
-      //sending.setDate(dtf.format(LocalDateTime.now()));
-         sending.setDate("Today");
+         //get current date
+         Date d = new Date(System.currentTimeMillis());
+         sending.setDate(d.toString());
          sending.setSubject(jtfSubject.getText());
-         sending.setMessage(jtaMessage.getText());
+         
          
          //get if encrypted
          if(jcbEncrypted.isSelected()){
             //encrypted is true
             sending.setEncrypted(true);
+            //change message
+            sending.setMessage(rot13(jtaMessage.getText()));
+         }else{ //message not encrypted
+            sending.setMessage(jtaMessage.getText());
          }
       
       //email object created
@@ -637,22 +667,20 @@ email GUI display class
    
    }//end of class draft
    
-   /**
-   Thread that continuously waits for emails, SMTP's the emails in and then redraws the JTable
+   /** 
+   Decrypts and Encrypts the given message
+   @param message to be encrypted or decrypted
    */
-   class InboxThread extends Thread{
-      
-      /**
-         override run method
-      */
-      public void run(){
-         //check if incoming mail
-         String serverReply = scan.nextLine();
-         if(serverReply.contains("HELO")){//I have an email coming in 
-            
-         }
+   public String rot13(String message){
+      //ROT13 decrypt
+      String decrypted = "";
+      for(int i = 0; i < message.length(); i++){//for every letter in the message
+         //subtract 13 to the char value and append to decrypted
+         char c = message.charAt(i);
+         decrypted += rot13.get(c).toString();
+         
       }
-      
+      return decrypted;
       
    }
    
