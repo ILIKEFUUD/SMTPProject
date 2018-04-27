@@ -263,12 +263,15 @@ public class SMTP_Client{
          }
       }
       for(int i = 97; i <= 122; i++){
-         if(i >= 77){
-            rot13.put((Character) ((char)i), (Character) (char)(i-13));
+         if(i >= 109){
+            rot13.put((Character) ((char)i), (Character) (char)(i - 13));
          }else{
             rot13.put((Character) ((char)i), (Character) (char)(i+13));
          }
-      }    
+      }
+      
+      
+          
       
       //now there is a hashmap for the ROT13
       
@@ -313,24 +316,13 @@ public class SMTP_Client{
                System.exit(0);
                break;
             case "Refresh":
-               try{
-                  pwt.println("MLBX");
-                  pwt.close();
-                  ois = new ObjectInputStream(cSocket.getInputStream());
-                  
-                  mailbox = (Vector<MailConstants>) ois.readObject();
-                  System.out.println(mailbox == null);
-                  System.out.println(mailbox);
-                  //read in mailbox, closing objectinputstream
-                  ois.close();
-                  //pwt = new PrintWriter(new OutputStreamWriter(cSocket.getOutputStream()));
-               }catch(Exception ioe){
-                  System.out.println("ahhhohno");
-               }
+               System.out.println("test");
                refresh();
                break;
          }
       }
+      
+      
       
       /*
       refresh method
@@ -340,11 +332,24 @@ public class SMTP_Client{
       public void refresh(){
       
          //create vector for JTable
+         pwt.println("MLBX");									//command to server
+         pwt.flush();
+      	int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
+      	Vector<MailConstants> inbox = new Vector<MailConstants>();	//inbox vector
+      	for(int i=0;i<count;i++){
+      		MailConstants email = new MailConstants(true, scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine());
+//       		email.setEncrypted(scan.nextLine());
+//       		email.setTo(scan.nextLine());
+//       		email.setFrom(scan.nextLine());
+//       		email.setCc(scan.nextLine());
+//       		email.setDate(scan.nextLine());
+//       		email.setSubject(scan.nextLine());
+//       		email.setMessage(scan.nextLine());
+      		inbox.add(email);
+      	}
          
          Vector<Vector> data = new Vector<Vector>(); //2d vector for data
-      
-      
-         for(MailConstants m : mailbox){
+         for(MailConstants m : inbox){
             Vector<String> emailData = new Vector<String>(); //individual data for each email
             String from = m.getFrom();
             String subject = m.getSubject();
@@ -362,7 +367,7 @@ public class SMTP_Client{
             new java.awt.event.MouseAdapter() {
                public void mouseClicked(java.awt.event.MouseEvent evt) {
                   int row = jtInbox.rowAtPoint(evt.getPoint());
-                  MailConstants called = mailbox.get(row);
+                  MailConstants called = inbox.get(row);
                   new EmailDisplay(called);
                }
             });
@@ -422,7 +427,7 @@ email GUI display class
          jtaMessage.setEditable(false);
          //decrypt if encrypted
          if(e.getEncrypted()){
-            jtaMessage.setText(rot13(e.getMessage())); //set text as decrypted message
+            jtaMessage.setText(rot(e.getMessage())); //set text as decrypted message
          }else{
             jtaMessage.setText(e.getMessage());
          }
@@ -551,7 +556,7 @@ email GUI display class
             //encrypted is true
             sending.setEncrypted(true);
             //change message
-            sending.setMessage(rot13(jtaMessage.getText()));
+            sending.setMessage(rot(jtaMessage.getText()));
          }else{ //message not encrypted
             sending.setMessage(jtaMessage.getText());
          }
@@ -671,15 +676,20 @@ email GUI display class
    Decrypts and Encrypts the given message
    @param message to be encrypted or decrypted
    */
-   public String rot13(String message){
+   public String rot(String message){
       //ROT13 decrypt
       String decrypted = "";
+      System.out.println(message);
       for(int i = 0; i < message.length(); i++){//for every letter in the message
          //subtract 13 to the char value and append to decrypted
-         char c = message.charAt(i);
-         decrypted += rot13.get(c).toString();
-         
+         char letter = message.charAt(i);
+         if((letter >= 65 && letter <= 90) || (letter >= 97 && letter <= 122))
+            decrypted += rot13.get(letter).toString();
+         else{
+            decrypted += letter;
+         }
       }
+      System.out.println(decrypted);
       return decrypted;
       
    }
