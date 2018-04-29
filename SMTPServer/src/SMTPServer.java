@@ -451,10 +451,10 @@ public class SMTPServer extends JFrame implements ActionListener{
             int breakPoint = To.indexOf("@");
             String mailTo = To.substring(0,breakPoint);
             String ip = To.substring(breakPoint+1);
-            boolean locateUser = onServer(mailTo, ip);
+            User locateUser = onServer(mailTo, ip);
 
-            if(locateUser == true){
-                saveEmail(mailTo, newEmail);
+            if(locateUser != null){
+                saveEmail(locateUser, newEmail);
             }
             else{
                 /*We will relay the email here by calling a Relay Class*/
@@ -463,21 +463,40 @@ public class SMTPServer extends JFrame implements ActionListener{
 
         }//process
 
-        private synchronized void saveEmail(String userName, MailConstants newMail){
+        private synchronized void saveEmail(User userName, MailConstants newMail){
             /*Add email to users mailBox vector then save vector to a file*/
+            PrintWriter mpwt = null;
+            File mbox = new File(userName.getUserName() + ".txt");
+
+            try {
+                userName.getEmail().add(newMail);
+
+                mpwt = new PrintWriter(new FileOutputStream(mbox, true));
+
+                mpwt.println("From: " + newMail.getFrom());
+                mpwt.println("To: " + newMail.getTo());
+                mpwt.println("CC: " + newMail.getCC());
+                mpwt.println("Date: " + newMail.getDate());
+                mpwt.println("Subject:" + newMail.getSubject());
+                mpwt.println(newMail.getMessage());
+                mpwt.println("");
+
+                mpwt.close();
+            }
+            catch(Exception e){ JOptionPane.showMessageDialog(null, "Error handling mailbox"); }
         }
         /*Determines if the user is on our server or not based on user name and ip address*/
-        private boolean onServer(String name, String ip) {
+        private User onServer(String name, String ip) {
 
             for(User user: users) {
                 if(name.equals(user.getUserName()) && ip.equals(user.getIP())){
-                    return true;
+                    return user;
                 }
                 else{
                     continue;
                 }
             }
-            return false;
+            return null;
         }
     }
 
