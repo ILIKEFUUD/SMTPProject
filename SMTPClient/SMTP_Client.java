@@ -259,8 +259,8 @@ public class SMTP_Client{
       String[] shiftAlpha = "mnopqrstuvwxyzabcdefghijklMNOPQRSTUVWXYZABCDEFGHIJKL".split("");
       
       //put into hashmap
-      for(String a : normalAlpha){
-         
+      for(int i = 0; i < normalAlpha.length; i++){
+         rot13.put(normalAlpha[i].charAt(0), shiftAlpha[i].charAt(0));
       }
       
       
@@ -518,6 +518,7 @@ email GUI display class
          switch(ae.getActionCommand()){
             case "Send":
                doSend();
+               this.dispose();
                break;
             case "Save and Exit":
             //Theoretically save the written data to a file, maybe CSV?
@@ -576,7 +577,7 @@ email GUI display class
             
             //ok to send the from
                String send = "MAIL FROM:<" + email.getFrom() + ">";
-               System.out.println(send);
+               
                pwt.println(send);
                pwt.flush();
             //get reply
@@ -620,8 +621,10 @@ email GUI display class
                         }
                      //endof message
                      //send the carriage return lf 
-                        pwt.println("\n.\n");
-                     
+                        System.out.println("end of message");
+                        pwt.println("\r\n.\r\n"); //SMTP required end of message ~~~~~~
+                        pwt.flush();
+                        System.out.println("should have returned");
                      //see if server responded with OK
                         reply =  scan.nextLine();
                         if(reply.substring(0,3).equals("250")){
@@ -633,6 +636,7 @@ email GUI display class
                            reply =  scan.nextLine();
                            if(reply.substring(0,3).equals("221")){
                            //done sending email
+                              System.out.println("should dispose");
                               this.dispose();
                            }
                         
@@ -676,11 +680,12 @@ email GUI display class
       for(int i = 0; i < message.length(); i++){//for every letter in the message
          //subtract 13 to the char value and append to decrypted
          char letter = message.charAt(i);
-         if((letter >= 65 && letter <= 90) || (letter >= 97 && letter <= 122))
-            decrypted += rot13.get(letter).toString();
-         else{
+         if((letter >= 65 && letter <= 90 ) || (letter >= 97 && letter <= 122)){
+            decrypted += rot13.get(letter); //if letter, encrypt it
+         }else{
             decrypted += letter;
          }
+         
       }
       System.out.println(decrypted);
       return decrypted;
