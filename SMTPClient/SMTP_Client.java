@@ -331,7 +331,11 @@ public class SMTP_Client{
       	int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
       	Vector<MailConstants> inbox = new Vector<MailConstants>();	//inbox vector
       	for(int i=0;i<count;i++){
-      		MailConstants email = new MailConstants(scan.nextLine().equals("_ENCRYPTED_"), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine());
+            MailConstants email;
+            synchronized(scan){
+      		   email = new MailConstants(scan.nextLine().equals("_ENCRYPTED_"), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine());
+            }
+            System.out.println(email.getSubject());
 //       		email.setEncrypted(scan.nextLine());
 //       		email.setTo(scan.nextLine());
 //       		email.setFrom(scan.nextLine());
@@ -638,16 +642,16 @@ email GUI display class
                      }
                      pwt.println("From:" + email.getFrom());
                      pwt.flush();
-                  
+                     System.out.println("~from: " + email.getFrom());
                      pwt.println("To:" + email.getTo());
                      pwt.flush();
-                  
+                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Cc:" + email.getCC());
                      pwt.flush();
-                  
+                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Date:" + email.getDate());
                      pwt.flush();
-                  
+                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Subject:" + email.getSubject());
                      pwt.flush();
                   
