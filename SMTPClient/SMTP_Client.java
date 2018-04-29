@@ -33,20 +33,18 @@ public class SMTP_Client{
       creates new client object
    */
    public static void main(String[] args){
-      new SMTP_Client(3);
+      new SMTP_Client();
    }
 
    /**
       constructor for main client class
       creates new login object, first window to show to user
    */
-   public SMTP_Client(int i){
+   public SMTP_Client(){
       new Login();                                                      //currently does nothing but create login window
    }
 
-   public SMTP_Client(){
-      // do nothing
-   }
+
 
 
 
@@ -125,6 +123,7 @@ public class SMTP_Client{
       
          this.setVisible(true);
       }
+      
    
    /**
       @param ActionEvent button click: login or exit
