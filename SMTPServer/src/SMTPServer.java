@@ -172,7 +172,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                         pwt.println("ACCEPTED");
                         pwt.flush();
                         jtaLog.append("Server: Login Accepted" + "\n");
-                        jtaLog.append(scn.nextLine());
+                        jtaLog.append(scn.nextLine() + "\n");
                         ct.start();
 
                     }
@@ -278,20 +278,22 @@ public class SMTPServer extends JFrame implements ActionListener{
                pwt.flush();
                for(int i = 0; i < count; i++){
                    MailConstants send = sendBox.get(i);
-                   pwt.println(send.getEncrypted());
-                   pwt.flush();
-                   pwt.println(send.getTo());
-                   pwt.flush();
-                   pwt.println(send.getFrom());
-                   pwt.flush();
-                   pwt.println(send.getCC());
-                   pwt.flush();
-                   pwt.println(send.getDate());
-                   pwt.flush();
-                   pwt.println(send.getSubject());
-                   pwt.flush();
-                   pwt.println(send.getMessage());
-                   pwt.flush();
+                  synchronized (clientSocket) {
+                      pwt.println(send.getEncrypted());
+                      pwt.flush();
+                      pwt.println(send.getTo());
+                      pwt.flush();
+                      pwt.println(send.getFrom());
+                      pwt.flush();
+                      pwt.println(send.getCC());
+                      pwt.flush();
+                      pwt.println(send.getDate());
+                      pwt.flush();
+                      pwt.println(send.getSubject());
+                      pwt.flush();
+                      pwt.println(send.getMessage());
+                      pwt.flush();
+                  }
                }
                jtaLog.append("Server: Mailbox Sent" + "\n");
 
@@ -436,10 +438,10 @@ public class SMTPServer extends JFrame implements ActionListener{
                 try {
                     pwt.println("221 BYE");
                     pwt.flush();
-                    jtaLog.append("Server: 221 BYE");
+                    jtaLog.append("Server: 221 BYE" + "\n");
                     yield();
                 }
-                catch(Exception e){jtaLog.append("Server: " + e);}
+                catch(Exception e){jtaLog.append("Server: " + e + "\n");}
             }
 
 
