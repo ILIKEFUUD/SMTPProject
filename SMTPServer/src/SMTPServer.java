@@ -478,7 +478,11 @@ public class SMTPServer extends JFrame implements ActionListener{
                 mpwt.println("CC: " + newMail.getCC());
                 mpwt.println("Date: " + newMail.getDate());
                 mpwt.println("Subject:" + newMail.getSubject());
-                mpwt.println(newMail.getMessage());
+
+                for (String s : newMail.getMessage().split("\n")) {
+                    mpwt.println(s);
+                }
+
                 mpwt.println("");
 
                 mpwt.close();
