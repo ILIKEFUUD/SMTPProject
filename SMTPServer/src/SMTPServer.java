@@ -457,7 +457,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                 saveEmail(locateUser, newEmail);
             }
             else{
-                /*We will relay the email here by calling a Relay Class*/
+                Relay rMessage = new Relay(mailTo, ip, newEmail);
             }
 
 
