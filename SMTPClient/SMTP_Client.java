@@ -33,18 +33,20 @@ public class SMTP_Client{
       creates new client object
    */
    public static void main(String[] args){
-      new SMTP_Client();
+      new SMTP_Client(3);
    }
 
    /**
       constructor for main client class
       creates new login object, first window to show to user
    */
-   public SMTP_Client(){
+   public SMTP_Client(int i){
       new Login();                                                      //currently does nothing but create login window
    }
 
-
+   public SMTP_Client(){
+      // do nothing
+   }
 
 
 
