@@ -255,19 +255,12 @@ public class SMTP_Client{
       
       //hashmap for encryption
       rot13 = new HashMap<Character, Character>();
-      for(int i = 65; i <= 90; i++){
-         if(i >= 77){
-            rot13.put((Character) ((char)i), (Character) (char)(i-13));
-         }else{
-            rot13.put((Character) ((char)i), (Character) (char)(i+13));
-         }
-      }
-      for(int i = 97; i <= 122; i++){
-         if(i >= 109){
-            rot13.put((Character) ((char)i), (Character) (char)(i - 13));
-         }else{
-            rot13.put((Character) ((char)i), (Character) (char)(i+13));
-         }
+      String[] normalAlpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      String[] shiftAlpha = "mnopqrstuvwxyzabcdefghijklMNOPQRSTUVWXYZABCDEFGHIJKL".split("");
+      
+      //put into hashmap
+      for(String a : normalAlpha){
+         
       }
       
       
