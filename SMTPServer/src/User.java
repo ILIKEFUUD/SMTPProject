@@ -25,5 +25,6 @@ public class User implements Serializable {
     public void setUserName(String name){userName = name;}
     public void setPassWord(String pass){passWord = pass;}
     public void setIP(String address){ip = address;}
+    public void addMail(MailConstants mail){mailBox.add(mail);}
 
 }

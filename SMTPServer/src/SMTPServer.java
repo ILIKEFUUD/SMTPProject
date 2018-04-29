@@ -41,7 +41,6 @@ public class SMTPServer extends JFrame implements ActionListener{
         jtaLog.setLineWrap(true);
         jtaLog.setWrapStyleWord(true);
 
-
         jpCenter.add(jlLog);//add Log to the GUI
         jpCenter.add(new JScrollPane(jtaLog));
         this.add(jpCenter, BorderLayout.CENTER);
@@ -62,7 +61,6 @@ public class SMTPServer extends JFrame implements ActionListener{
 
                 });
 
-
         this.setVisible(true);
 
     }
@@ -74,10 +72,8 @@ public class SMTPServer extends JFrame implements ActionListener{
         this.setLocation(600, 50);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
     public void actionPerformed(ActionEvent ae){
         switch(ae.getActionCommand()){
-
             case "Start":
                 doStart();
                 break;
@@ -85,7 +81,6 @@ public class SMTPServer extends JFrame implements ActionListener{
             case "Stop":
                 doStop();
                 break;
-
         }
     }
     /**doStart - creates and starts new serverThread*/
@@ -177,6 +172,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                         pwt.println("ACCEPTED");
                         pwt.flush();
                         jtaLog.append("Server: Login Accepted" + "\n");
+                        jtaLog.append(scn.nextLine());
                         ct.start();
 
                     }
@@ -198,7 +194,6 @@ public class SMTPServer extends JFrame implements ActionListener{
                 running = false;
                 sSocket.close();
                 queue.interrupt();//interupt running FIFOHandler
-
             }
             catch(Exception e){}
         }
@@ -218,7 +213,6 @@ public class SMTPServer extends JFrame implements ActionListener{
     /**ClientThread - each client receives its own thread. All functions of the SMTP Server are handled in this class*/
     class ClientThread extends Thread{
         private Socket clientSocket;
-
         private PrintWriter pwt;
         private Scanner scn;
         private String name;
@@ -275,26 +269,39 @@ public class SMTPServer extends JFrame implements ActionListener{
         }
         /*doSendMailbox*/
         public synchronized void doSendMailbox() {
-             ObjectOutputStream oos;
-             ObjectInputStream ois;
+
            try {
-               oos = new ObjectOutputStream(clientSocket.getOutputStream());
-               ois = new ObjectInputStream(clientSocket.getInputStream());
                Vector<MailConstants> sendBox;
                sendBox = clientUser.getEmail();
-               oos.writeObject(sendBox);
-               oos.flush();
+               int count = sendBox.size();
+               pwt.println(""+count);
+               pwt.flush();
+               for(int i = 0; i < count; i++){
+                   MailConstants send = sendBox.get(i);
+                   pwt.println(send.getEncrypted());
+                   pwt.flush();
+                   pwt.println(send.getTo());
+                   pwt.flush();
+                   pwt.println(send.getFrom());
+                   pwt.flush();
+                   pwt.println(send.getCC());
+                   pwt.flush();
+                   pwt.println(send.getDate());
+                   pwt.flush();
+                   pwt.println(send.getSubject());
+                   pwt.flush();
+                   pwt.println(send.getMessage());
+                   pwt.flush();
+               }
                jtaLog.append("Server: Mailbox Sent" + "\n");
-               String receive = (String) ois.readObject();
 
+               String receive = (String) scn.nextLine();
                if(receive.equals("INBOX RECEIVED")) {
                    jtaLog.append(name + receive + "\n");
                }
                else{
                    jtaLog.append(name + "Inbox was not received." + "\n");
                    }
-               oos.close();
-               ois.close();
            }
                catch(Exception e){jtaLog.append("Server: Error sending Mailbox" + "\n");}
            }
@@ -307,9 +314,11 @@ public class SMTPServer extends JFrame implements ActionListener{
             String subject;
             String message = "";
             String ccAddress;
-            Boolean encrypt = true;
+            Boolean encrypt = false;
             int beginning;
             int end;
+            String carraigeReturn = "\r\n.\r\n";
+            int counter = 0;
 
             try {
                 pwt.println("250 Hello" + name + "Nice to meet you");
@@ -393,8 +402,17 @@ public class SMTPServer extends JFrame implements ActionListener{
                 beginning = response.indexOf(":");
                 subject = response.substring(beginning );
 
-                while(!response.equals("\n" + "." + "\n" )){
+                while(counter < 3){
                     response = scn.nextLine();
+                    if(response.equals("") || response.equals("."))
+                        counter++;
+                    else
+                        counter = 0;
+
+                    if(response.contains("_ENCRYPTED_"))
+                        encrypt = true;
+
+                    System.out.println(counter);
                     message += response + "\n";
                     jtaLog.append("Server: Message Received : " + response + "\n");
                 }
@@ -403,9 +421,11 @@ public class SMTPServer extends JFrame implements ActionListener{
                 pwt.flush();
                 jtaLog.append("Server: 250 OK" + "\n");
                 /*DATA BLOCK END*/
-
+                System.out.println(fifo.empty());
                 MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
                 fifo.enqueue(newEmail);
+                System.out.println("Added to queue");
+                System.out.println(fifo.empty());
 
                 }//try
 
@@ -433,14 +453,15 @@ public class SMTPServer extends JFrame implements ActionListener{
         }
 
         public void run(){
-
-            while(fifo.empty() != true) {
-                process();
+            while(true) {
+                    process();
             }
-
         }
-        
+
         private synchronized void process() {
+            if(fifo.empty() == true)
+                return;
+
             try {
                 newEmail = fifo.dequeue();
             }
@@ -455,9 +476,10 @@ public class SMTPServer extends JFrame implements ActionListener{
 
             if(locateUser != null){
                 saveEmail(locateUser, newEmail);
+                System.out.println("Save Email");
             }
             else{
-                Relay rMessage = new Relay(mailTo, ip, newEmail);
+                Relay newRelay = new Relay(mailTo, ip, newEmail);
             }
 
 
@@ -469,19 +491,19 @@ public class SMTPServer extends JFrame implements ActionListener{
             File mbox = new File(userName.getUserName() + ".txt");
 
             try {
-                userName.getEmail().add(newMail);
+                userName.addMail(newMail);
 
                 mpwt = new PrintWriter(new FileOutputStream(mbox, true));
 
-                mpwt.println("From: " + newMail.getFrom());
+                mpwt.println("Encrypted: " + newMail.getEncrypted());
                 mpwt.println("To: " + newMail.getTo());
+                mpwt.println("From: " + newMail.getFrom());
                 mpwt.println("CC: " + newMail.getCC());
                 mpwt.println("Date: " + newMail.getDate());
                 mpwt.println("Subject:" + newMail.getSubject());
 
-                for (String s : newMail.getMessage().split("\n")) {
+                for(String s: newMail.getMessage().split("\n"))
                     mpwt.println(s);
-                }
 
                 mpwt.println("");
 
