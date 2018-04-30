@@ -156,6 +156,9 @@ public class SMTP_Client{
             //System.out.println(test);
                pwt.println("LOGGED IN");
                pwt.flush();
+               if(!scan.nextLine().contains("220")){
+                  JOptionPane.showMessageDialog(null, "Error: ", "Connection error", JOptionPane.ERROR_MESSAGE);
+               }
                username = jtfUser.getText();
                this.setVisible(false); //destroys login window
             }catch(Exception e){
@@ -333,7 +336,24 @@ public class SMTP_Client{
       	for(int i=0;i<count;i++){
             MailConstants email;
             synchronized(scan){
-      		   email = new MailConstants(scan.nextLine().equals("_ENCRYPTED_"), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine());
+      		   email = new MailConstants(false, scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), "");
+               String message = "";
+               while(true){
+                  String line = scan.nextLine();
+                  
+                  if(line.equals("_DONE_")){
+                     break;
+                  }else if(line.contains("_QZODKBFQP_")){
+                     //set to encrypted
+                     
+                     email.setEncrypted(true);
+                     message += line + "\n";
+                  }else{
+                     
+                     message += line + "\n";
+                  }
+               }
+               email.setMessage(message);
             }
             System.out.println(email.getSubject());
 //       		email.setEncrypted(scan.nextLine());
@@ -343,6 +363,7 @@ public class SMTP_Client{
 //       		email.setDate(scan.nextLine());
 //       		email.setSubject(scan.nextLine());
 //       		email.setMessage(scan.nextLine());
+            System.out.println(email.getEncrypted());
       		inbox.add(email);
       	}
          
@@ -424,7 +445,7 @@ email GUI display class
       
          jtaMessage.setEditable(false);
          //decrypt if encrypted
-         if(e.getEncrypted()){
+         if(e.getEncrypted() == true){
             jtaMessage.setText(rot(e.getMessage())); //set text as decrypted message
          }else{
             jtaMessage.setText(e.getMessage());
@@ -457,7 +478,7 @@ email GUI display class
       private JPanel jpRahul = new JPanel();
       private JButton jbSend = new JButton("Send");
       private JButton jbExit = new JButton("Exit");
-      private JCheckBox jcbEncrypted = new JCheckBox("Enrypted");
+      private JCheckBox jcbEncrypted = new JCheckBox("Encrypted");
       
       
    
@@ -541,7 +562,7 @@ email GUI display class
    creates email object and sends it to server using SMTP
    */
       public void doSend() {
-         MailConstants sending = new MailConstants(false, "", "", "", "", "", "");
+         MailConstants sending = new MailConstants(true, "", "", "", "", "", "");
          sending.setTo(jtfTo.getText());
          sending.setFrom(username);
          sending.setCC(jtfTo.getText());
@@ -554,11 +575,12 @@ email GUI display class
          //get if encrypted
          if(jcbEncrypted.isSelected()){
             //encrypted is true
+            System.out.println("set encry");
             sending.setEncrypted(true);
             //change message
             sending.setMessage(rot(jtaMessage.getText()));
          }else{ //message not encrypted
-            sending.setEncrypted(false);
+            sending.setEncrypted(true);
             sending.setMessage(jtaMessage.getText());
          }
       
@@ -578,6 +600,7 @@ email GUI display class
    public String rot(String message){
       //ROT13 decrypt
       String decrypted = "";
+      
       System.out.println(message);
       for(int i = 0; i < message.length(); i++){//for every letter in the message
          //subtract 13 to the char value and append to decrypted
@@ -586,6 +609,7 @@ email GUI display class
             decrypted += rot13.get(letter); //if letter, encrypt it
          }else{
             decrypted += letter;
+            System.out.println("AH");
          }
          
       }
@@ -632,14 +656,7 @@ email GUI display class
                   reply =  scan.nextLine();
                   if(reply.substring(0,3).equals("354")){
                   //send every data field in MailConstants
-                     //send if encrypted
-                     if(email.getEncrypted()){
-                        pwt.println("_ENCRYPTED_");
-                        pwt.flush();
-                     }else{
-                        pwt.println("_NOT_ENCRYPTED_");
-                        pwt.flush();
-                     }
+                     
                      pwt.println("From:" + email.getFrom());
                      pwt.flush();
                      System.out.println("~from: " + email.getFrom());
@@ -655,6 +672,14 @@ email GUI display class
                      pwt.println("Subject:" + email.getSubject());
                      pwt.flush();
                   
+                     //send if encrypted
+                     if(email.getEncrypted()){
+                        pwt.println("_ENCRYPTED_");
+                        pwt.flush();
+                     }else{
+                        pwt.println("_NOT-ENCRYPTED_");
+                        pwt.flush();
+                     }
                   //send message
                      String[] message = email.getMessage().split("\n");
                      for(String line : message){//send message line by line
@@ -664,7 +689,7 @@ email GUI display class
                   //endof message
                   //send the carriage return lf 
                      System.out.println("end of message");
-                     pwt.println("\r\n.\r\n"); //SMTP required end of message ~~~~~~
+                     pwt.println("."); //SMTP required end of message ~~~~~~
                      pwt.flush();
                      System.out.println("should have returned");
                   //see if server responded with OK
