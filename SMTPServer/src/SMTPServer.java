@@ -106,7 +106,7 @@ public class SMTPServer extends JFrame implements ActionListener{
             String currentDir = System.getProperty("user.dir");
             String fileName = "user.obj";//set file name
 
-            File tempFile = new File(currentDir + "\\" + fileName);//set file to orders.obj in current directory
+            File tempFile = new File(fileName);//set file to orders.obj in current directory
 
             /*Check to see if user.obj exists and load objects into an array list. */
             if(tempFile.exists()){
@@ -173,6 +173,8 @@ public class SMTPServer extends JFrame implements ActionListener{
                         pwt.flush();
                         jtaLog.append("Server: Login Accepted" + "\n");
                         jtaLog.append(scn.nextLine() + "\n");
+                        pwt.println("220 OK");
+                        pwt.flush();
                         ct.start();
 
                     }
@@ -279,25 +281,35 @@ public class SMTPServer extends JFrame implements ActionListener{
                for(int i = 0; i < count; i++){
                    MailConstants send = sendBox.get(i);
                   synchronized (clientSocket) {
-                      pwt.println(send.getEncrypted());
-                      pwt.flush();
+//                      pwt.println(send.getEncrypted());
+//                      System.out.println(send.getEncrypted());
+//                      pwt.flush();
                       pwt.println(send.getTo());
+                      System.out.println(send.getTo());
                       pwt.flush();
                       pwt.println(send.getFrom());
+                      System.out.println(send.getFrom());
                       pwt.flush();
                       pwt.println(send.getCC());
+                      System.out.println(send.getCC());
                       pwt.flush();
                       pwt.println(send.getDate());
+                      System.out.println(send.getDate());
                       pwt.flush();
                       pwt.println(send.getSubject());
+                      System.out.println(send.getSubject());
                       pwt.flush();
                       pwt.println(send.getMessage());
+                      System.out.println(send.getMessage());
+                      pwt.flush();
+                      pwt.println("_DONE_");
                       pwt.flush();
                   }
                }
                jtaLog.append("Server: Mailbox Sent" + "\n");
 
                String receive = (String) scn.nextLine();
+               System.out.println(receive);
                if(receive.equals("INBOX RECEIVED")) {
                    jtaLog.append(name + receive + "\n");
                }
@@ -392,26 +404,26 @@ public class SMTPServer extends JFrame implements ActionListener{
                 response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
-                ccAddress = response.substring(beginning);
+                ccAddress = response.substring(beginning + 1);
+                System.out.println(ccAddress);
 
                 response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
-                date = response.substring(beginning);
+                date = response.substring(beginning + 1);
+                System.out.println(date);
 
                 response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
-                subject = response.substring(beginning );
+                subject = response.substring(beginning + 1);
+                System.out.println(subject);
 
-                while(counter < 3){
+                while(counter < 1){
                     response = scn.nextLine();
-                    if(response.equals("") || response.equals("."))
+                    if(response.equals("."))
                         counter++;
-                    else
-                        counter = 0;
-
-                    if(response.contains("_ENCRYPTED_"))
+                    else if(response.contains("_ENCRYPTED_"))
                         encrypt = true;
 
                     System.out.println(counter);
@@ -423,7 +435,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                 pwt.flush();
                 jtaLog.append("Server: 250 OK" + "\n");
                 /*DATA BLOCK END*/
-                System.out.println(fifo.empty());
+                System.out.println(encrypt);
                 MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
                 fifo.enqueue(newEmail);
                 System.out.println("Added to queue");
@@ -502,7 +514,7 @@ public class SMTPServer extends JFrame implements ActionListener{
                 mpwt.println("From: " + newMail.getFrom());
                 mpwt.println("CC: " + newMail.getCC());
                 mpwt.println("Date: " + newMail.getDate());
-                mpwt.println("Subject:" + newMail.getSubject());
+                mpwt.println("Subject: " + newMail.getSubject());
 
                 for(String s: newMail.getMessage().split("\n"))
                     mpwt.println(s);

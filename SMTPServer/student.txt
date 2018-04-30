@@ -1,22 +1,232 @@
 Encrypted: false
 To: student@129.21.67.86
-From: test
+From: student
 CC: :student@129.21.67.86
 Date: :student@129.21.67.86
-Subject::Sun Apr 29 15:47:09 EDT 2018
-Subject:Yoink
-Badoodledonk
+:Mon Apr 30 10:34:55 EDT 2018
+Subject:this is the subject line
+this is the body of the email
+
+.
+
+Encrypted: true
+To: student@129.21.67.86
+From: student
+CC: :student@129.21.67.86
+Date: :Mon Apr 30 10:40:45 EDT 2018
+:this is the subject
+_NOT_ENCRYPTED_
+here is the message
 
 .
 
 Encrypted: false
 To: student@129.21.67.86
-From: test
-CC: :student@129.21.67.86
-Date: :student@129.21.67.86
-Subject::Sun Apr 29 15:57:22 EDT 2018
-Subject:Wonk
-WObbletywoop
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 10:49:21 EDT 2018
+Subject: this is a subjec
+_NOT-ENCRYPTED_
+this is the message body
+with multiple lines
 
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 10:51:22 EDT 2018
+Subject: encrypted email test
+_ENCRYPTED_
+ftue yqeemsq fetagxp nq qzodkfbqp
+
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 10:55:04 EDT 2018
+Subject: this is subject
+_ENCRYPTED_
+tqdq ue 
+qzodkbfqp yqeemsq
+
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 10:58:24 EDT 2018
+Subject: another encrypted email
+_ENCRYPTED_
+tqdq ue kqf mzaftqd qzodkbfqp yqeemsq
+iaaaaa
+
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:05:41 EDT 2018
+Subject: this is encrypted
+_ENCRYPTED_
+ftue yqeemsq etagxp tmhq nqqz qozdkbfqp
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:07:56 EDT 2018
+Subject: this should work
+_ENCRYPTED_
+mtttt
+tqxb
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:09:07 EDT 2018
+Subject: pls work
+_NOT-ENCRYPTED_
+mttt
+tqxb
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:12:25 EDT 2018
+Subject: please work
+_ENCRYPTED_
+mtttt
+tqxb
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:14:56 EDT 2018
+Subject: i hope this works
+_ENCRYPTED_
+mzp nqoayqe qzodkfbqp mtt
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:23:08 EDT 2018
+Subject: help me
+_ENCRYPTED_
+rgowwwwww
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:24:57 EDT 2018
+Subject: here is subject
+_ENCRYPTED_
+mtttt bxqmeq iadw
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:35:16 EDT 2018
+Subject: i want to die 
+_ENCRYPTED_
+rgowww
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:36:22 EDT 2018
+Subject: fuck
+_ENCRYPTED_
+mttt
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:37:23 EDT 2018
+Subject: words
+_NOT-ENCRYPTED_
+these are words
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:40:15 EDT 2018
+Subject: help me
+_ENCRYPTED_
+rgow 
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:44:19 EDT 2018
+Subject: fuck
+_ENCRYPTED_
+yqqqqq
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:46:02 EDT 2018
+Subject: fudge
+_ENCRYPTED_
+msmsmsms
+.
+
+Encrypted: false
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:48:52 EDT 2018
+Subject: eat
+_ENCRYPTED_
+mee
+.
+
+Encrypted: true
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:51:29 EDT 2018
+Subject: help me
+_ENCRYPTED_
+ur ftue iadw u iuxx odk
+.
+
+Encrypted: true
+To: student@129.21.67.86
+From: student
+CC: student@129.21.67.86
+Date: Mon Apr 30 11:53:59 EDT 2018
+Subject: fuck me
+_ENCRYPTED_
+mttttt
 .
 
