@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Relay implements Runnable{
+public class Relay extends Thread{
 
     String mailToName = null;
     String ip = null;
@@ -38,6 +38,8 @@ public class Relay implements Runnable{
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Error relaying message" + e);
         }
+        doLogin();
+        System.out.println("passed login");
         SMTPSend(newEmail);
     }
     
@@ -49,14 +51,14 @@ public class Relay implements Runnable{
     	pwt.flush();
     	
     	if (!scan.nextLine().equals("ACCEPTED")){
-    		JOptionPane.showMessageDialog(null, this, "Login Failed", 0);
+    		JOptionPane.showMessageDialog(null, "Login Failed");
     		return;
     	}
     	else{
     		pwt.println("LOGGED IN");
     		pwt.flush();
     		if(!scan.nextLine().contains("220"))
-    			JOptionPane.showMessageDialog(null, this, "Login Failed", 0);
+    			JOptionPane.showMessageDialog(null,"Login Failed");
     		else
     			SMTPSend(newEmail);
     	}
@@ -72,7 +74,7 @@ public class Relay implements Runnable{
             //get reply
             String reply =  scan.nextLine();
             System.out.println("reading in reply");
-            if(reply.substring(0,3).equals("250")){
+            if(reply.contains("250")){
 
                 //ok to send the from
                 String send = "MAIL FROM:<" + email.getFrom() + ">";
@@ -133,15 +135,21 @@ public class Relay implements Runnable{
                             pwt.flush();
                             System.out.println("should have returned");
                             //see if server responded with OK
+                           try{
                             reply =  scan.nextLine();
-                            if(reply.substring(0,3).equals("250")){
+                           }
+                           catch(Exception e){}//catch to ignore no reply
+                            if(reply.contains("250")){
                                 //reply with QUIT
                                 pwt.println("QUIT");
                                 pwt.flush();
 
                                 //server replies with 221 bye
-                                reply =  scan.nextLine();
-                                if(reply.substring(0,3).equals("221")){
+                                try{
+                                    reply =  scan.nextLine();
+                                   }
+                                   catch(Exception e){}//catch to ignore no reply
+                                if(reply.contains("221")){
                                     //done sending email
                                     System.out.println("should dispose");
 

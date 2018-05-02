@@ -37,3 +37,14 @@ Subject:  More thing
 The spiciest meatball of all is friendship.
 .
 
+Encrypted: false
+To: test@10.150.100.63
+From: student
+CC: test@10.150.100.63
+Date: test@10.150.100.63
+Subject: Wed May 02 11:59:03 EDT 2018
+Subject:test subject
+_NOT-ENCRYPTED_
+test email
+.
+
