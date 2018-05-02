@@ -161,7 +161,8 @@ public class SMTP_Client{
                }
                username = jtfUser.getText();
                this.setVisible(false); //destroys login window
-            }catch(Exception e){
+            }
+            catch(Exception e){
                e.printStackTrace();
                try{
                   pwt.println("RECEPTION FAILED");
@@ -208,13 +209,15 @@ public class SMTP_Client{
                conn = scan.nextLine();
                System.out.println(conn);
             
-            }catch(Exception e){
+            }
+            catch(Exception e){
             //weird error ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                e.printStackTrace();
             }
             if(conn.contains("ACCEPTED")){//username and password is correct
                return true;
-            }else{
+            }
+            else{
                System.out.println(conn);
                return false;
             }
@@ -258,14 +261,14 @@ public class SMTP_Client{
       
       
       //hashmap for encryption
-      rot13 = new HashMap<Character, Character>();
-      String[] normalAlpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-      String[] shiftAlpha = "mnopqrstuvwxyzabcdefghijklMNOPQRSTUVWXYZABCDEFGHIJKL".split("");
+         rot13 = new HashMap<Character, Character>();
+         String[] normalAlpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+         String[] shiftAlpha = "mnopqrstuvwxyzabcdefghijklMNOPQRSTUVWXYZABCDEFGHIJKL".split("");
       
       //put into hashmap
-      for(int i = 0; i < normalAlpha.length; i++){
-         rot13.put(normalAlpha[i].charAt(0), shiftAlpha[i].charAt(0));
-      }
+         for(int i = 0; i < normalAlpha.length; i++){
+            rot13.put(normalAlpha[i].charAt(0), shiftAlpha[i].charAt(0));
+         }
       
       
           
@@ -331,24 +334,26 @@ public class SMTP_Client{
          //create vector for JTable
          pwt.println("MLBX");									//command to server
          pwt.flush();
-      	int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
-      	Vector<MailConstants> inbox = new Vector<MailConstants>();	//inbox vector
-      	for(int i=0;i<count;i++){
+         int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
+         Vector<MailConstants> inbox = new Vector<MailConstants>();	//inbox vector
+         for(int i=0;i<count;i++){
             MailConstants email;
             synchronized(scan){
-      		   email = new MailConstants(false, scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), "");
+               email = new MailConstants(false, scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), "");
                String message = "";
                while(true){
                   String line = scan.nextLine();
                   
                   if(line.equals("_DONE_")){
                      break;
-                  }else if(line.contains("_QZODKBFQP_")){
+                  }
+                  else if(line.contains("_QZODKBFQP_")){
                      //set to encrypted
                      
                      email.setEncrypted(true);
                      message += line + "\n";
-                  }else{
+                  }
+                  else{
                      
                      message += line + "\n";
                   }
@@ -356,16 +361,16 @@ public class SMTP_Client{
                email.setMessage(message);
             }
             System.out.println(email.getSubject());
-//       		email.setEncrypted(scan.nextLine());
-//       		email.setTo(scan.nextLine());
-//       		email.setFrom(scan.nextLine());
-//       		email.setCc(scan.nextLine());
-//       		email.setDate(scan.nextLine());
-//       		email.setSubject(scan.nextLine());
-//       		email.setMessage(scan.nextLine());
+         //       		email.setEncrypted(scan.nextLine());
+         //       		email.setTo(scan.nextLine());
+         //       		email.setFrom(scan.nextLine());
+         //       		email.setCc(scan.nextLine());
+         //       		email.setDate(scan.nextLine());
+         //       		email.setSubject(scan.nextLine());
+         //       		email.setMessage(scan.nextLine());
             System.out.println(email.getEncrypted());
-      		inbox.add(email);
-      	}
+            inbox.add(email);
+         }
          
          Vector<Vector> data = new Vector<Vector>(); //2d vector for data
          for(MailConstants m : inbox){
@@ -447,7 +452,8 @@ email GUI display class
          //decrypt if encrypted
          if(e.getEncrypted() == true){
             jtaMessage.setText(rot(e.getMessage())); //set text as decrypted message
-         }else{
+         }
+         else{
             jtaMessage.setText(e.getMessage());
          }
          
@@ -470,6 +476,9 @@ email GUI display class
       private JPanel jpTo = new JPanel();
       private JLabel jlTo = new JLabel("To: ");
       private JTextField jtfTo = new JTextField(49);
+      private JPanel jpCc = new JPanel();
+      private JLabel jlCc = new JLabel("Cc: ");
+      private JTextField jtfCc = new JTextField(49);
       private JPanel jpSubject = new JPanel();
       private JLabel jlSubject = new JLabel("Subject: ");
       private JTextField jtfSubject = new JTextField(46);
@@ -516,13 +525,18 @@ email GUI display class
          jpTo.add(jlTo);
          jpTo.add(jtfTo);
          jpTo.add(jcbEncrypted);
+         
+         jpCc.setLayout(new FlowLayout(FlowLayout.LEFT));
+         jpCc.add(jlCc);
+         jpCc.add(jtfCc);
       
          jpSubject.setLayout(new FlowLayout(FlowLayout.LEFT));
          jpSubject.add(jlSubject);
          jpSubject.add(jtfSubject);
       
-         jpHeader.setLayout(new GridLayout(2, 1));
+         jpHeader.setLayout(new GridLayout(3, 1));
          jpHeader.add(jpTo);
+         jpHeader.add(jpCc);
          jpHeader.add(jpSubject);
       
          jpRahul.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -565,7 +579,7 @@ email GUI display class
          MailConstants sending = new MailConstants(true, "", "", "", "", "", "");
          sending.setTo(jtfTo.getText());
          sending.setFrom(username);
-         sending.setCC(jtfTo.getText());
+         sending.setCC(jtfCc.getText());
          //get current date
          Date d = new Date(System.currentTimeMillis());
          sending.setDate(d.toString());
@@ -579,7 +593,8 @@ email GUI display class
             sending.setEncrypted(true);
             //change message
             sending.setMessage(rot(jtaMessage.getText()));
-         }else{ //message not encrypted
+         }
+         else{ //message not encrypted
             sending.setEncrypted(false);
             sending.setMessage(jtaMessage.getText());
          }
@@ -607,7 +622,8 @@ email GUI display class
          char letter = message.charAt(i);
          if((letter >= 65 && letter <= 90 ) || (letter >= 97 && letter <= 122)){
             decrypted += rot13.get(letter); //if letter, encrypt it
-         }else{
+         }
+         else{
             decrypted += letter;
             System.out.println("AH");
          }
@@ -676,7 +692,8 @@ email GUI display class
                      if(email.getEncrypted()){
                         pwt.println("_ENCRYPTED_");
                         pwt.flush();
-                     }else{
+                     }
+                     else{
                         pwt.println("_NOT-ENCRYPTED_");
                         pwt.flush();
                      }
@@ -707,29 +724,35 @@ email GUI display class
                            
                         }
                      
-                     }else{
+                     }
+                     else{
                         System.out.println("broke");
                      }
-                  }else{
+                  }
+                  else{
                      System.out.println("broke");
                   }
                
                
-               }else{
+               }
+               else{
                   System.out.println("broke");
                }
             
-            }else{
+            }
+            else{
                System.out.println("broke");
             
             } 
-         }else{
+         }
+         else{
          //SERVICE NOT AVAILABLE
             System.out.println(reply);
             return;//break out of send
          }
       
-      }catch(Exception e){
+      }
+      catch(Exception e){
          e.printStackTrace();
       }
    }
