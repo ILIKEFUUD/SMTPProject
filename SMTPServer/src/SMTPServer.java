@@ -367,7 +367,6 @@ public class SMTPServer extends JFrame implements ActionListener {
             Boolean encrypt = false;
             int beginning;
             int end;
-            String carraigeReturn = "\r\n.\r\n";
             int counter = 0;
 
             try {
@@ -438,6 +437,9 @@ public class SMTPServer extends JFrame implements ActionListener {
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 ccAddress = response.substring(beginning + 1);
+//                String[] addresses = ccAddress.split(",");
+                
+                	
                 System.out.println(ccAddress);
 
                 response = scn.nextLine();
@@ -471,6 +473,12 @@ public class SMTPServer extends JFrame implements ActionListener {
                 System.out.println(encrypt);
                 MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
                 fifo.enqueue(newEmail);
+                
+//                for(String address : addresses){
+//                	Relay relay = new Relay(address.substring(0, address.indexOf("@")), address.substring(address.indexOf("@") + 1), newEmail);
+//                	relay.start();
+//                }
+//                
                 System.out.println("Added to queue");
                 System.out.println(fifo.empty());
 
