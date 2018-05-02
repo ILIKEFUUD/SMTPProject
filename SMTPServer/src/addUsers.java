@@ -6,17 +6,13 @@ public class addUsers implements Serializable{
     public static final long serialVersionUID = 1L;
 
     private File userFile = new File("user.obj");
-
-    public static void main(String[] args){
-        new addUsers();
-    }
-
-    public addUsers(){
+    
+    public void makeUsers(){
         try{
             //File IO
             FileOutputStream userFos = new FileOutputStream(userFile);
             ObjectOutputStream userOut = new ObjectOutputStream(userFos);
-            /*create new order*/
+            /*create new user*/
             User brennan = new User("test", "test");
             brennan.getEmail().add(new MailConstants(false, "Brennan", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
             User student = new User("student", "student");
@@ -35,11 +31,18 @@ public class addUsers implements Serializable{
             brennan.setIP(IP.getHostAddress());
             student.setIP(IP.getHostAddress());
             test.setIP(IP.getHostAddress());
+            relay.setIP(IP.getHostAddress());
+            guest.setIP(IP.getHostAddress());
+            ISTE.setIP(IP.getHostAddress());
 
             userOut.writeObject(brennan);//print object to object file
             userOut.writeObject(student);
             userOut.writeObject(test);
+            userOut.writeObject(guest);
+            userOut.writeObject(ISTE);
+            userOut.writeObject(relay);
             userFos.close();//close output stream
+            System.out.println("DONE");
         }
         /**@throws Exception - this catch is necessary for the try above*/
         catch(Exception e){System.out.println("Exception : " + e);}

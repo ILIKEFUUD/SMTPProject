@@ -32,6 +32,7 @@ public class SMTPServer extends JFrame implements ActionListener {
 
     public SMTPServer() {
     	addUsers add = new addUsers();//create new user.obj file
+    	add.makeUsers();
     	doLoadUsers();
         setupWindow();
 
