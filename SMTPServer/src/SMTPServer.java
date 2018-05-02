@@ -346,7 +346,7 @@ public class SMTPServer extends JFrame implements ActionListener {
 
                 String receive = (String) scn.nextLine();
                 System.out.println(receive);
-                if (receive.equals("INBOX RECEIVED")) {
+                if (receive.equals("RECEPTION COMPLETE")) {
                     jtaLog.append(name + receive + "\n");
                 } else {
                     jtaLog.append(name + "Inbox was not received." + "\n");

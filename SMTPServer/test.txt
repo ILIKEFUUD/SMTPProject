@@ -48,3 +48,53 @@ _NOT-ENCRYPTED_
 test email
 .
 
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:20:06 EDT 2018
+Subject: sUBJECT
+_NOT-ENCRYPTED_
+lINE 1
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:23:01 EDT 2018
+Subject: Life
+_NOT-ENCRYPTED_
+Why?
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:23:31 EDT 2018
+Subject: Subject
+_NOT-ENCRYPTED_
+Message
+.
+
+Encrypted: true
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:24:20 EDT 2018
+Subject: Hello
+_ENCRYPTED_
+U my iadduqp
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:27:06 EDT 2018
+Subject: Life
+_NOT-ENCRYPTED_
+Why?
+.
+
