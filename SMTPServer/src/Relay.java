@@ -72,7 +72,11 @@ public class Relay extends Thread{
             pwt.println("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             pwt.flush();
             //get reply
-            String reply =  scan.nextLine();
+            String reply = "";
+            try{
+                reply =  scan.nextLine();
+               }
+               catch(Exception e){}//catch to ignore no reply
             System.out.println("reading in reply");
             if(reply.contains("250")){
 
@@ -180,5 +184,19 @@ public class Relay extends Thread{
         }catch(Exception e){
             e.printStackTrace();
         }
+        doKill();
     }
+    
+    public void doKill(){
+    	
+    	try{
+    		socket.close();
+    		pwt.close();
+    		scan.close();
+    	}
+    	
+    	catch(Exception e){}
+    
+    }
+    
 }
