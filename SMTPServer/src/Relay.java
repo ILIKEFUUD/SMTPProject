@@ -8,10 +8,12 @@ import java.util.Scanner;
 
 public class Relay implements Runnable{
 
-    String userName = null;
+    String mailToName = null;
     String ip = null;
     MailConstants newEmail = null;
-
+    String userName = "server";
+    String passWord = "server";
+    
     private Socket socket = null;
     private PrintWriter pwt = null;
     private Scanner scan = null;
@@ -21,10 +23,11 @@ public class Relay implements Runnable{
      * @parem _ip -sets ip to _ip
      * @parem _newEmail -sets newEmail to _newEmail
      */
-    public Relay(String _userName, String _ip, MailConstants _newEmail){
-        userName = _userName;
+    public Relay(String _mailToName, String _ip, MailConstants _newEmail){
+        mailToName = _mailToName;
         ip = _ip;
         newEmail = _newEmail;
+        
     }
 
     public void run(){
@@ -36,6 +39,11 @@ public class Relay implements Runnable{
             JOptionPane.showMessageDialog(null, "Error relaying message" + e);
         }
         SMTPSend(newEmail);
+    }
+    
+    public void doConnect(){
+    	
+    	
     }
 
     public void SMTPSend(MailConstants email){

@@ -10,9 +10,11 @@ public class SMTPServer extends JFrame implements ActionListener {
 
     private JTextArea jtaLog = new JTextArea(10, 35);
     private JButton jbStart = new JButton("Start");
+    private JTextField jtfIP = new JTextField(16);
     private JLabel jlLog = new JLabel("Log:");
     private JPanel jpNorth = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private JPanel jpCenter = new JPanel();
+    private JPanel jpSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
     private ServerThread sThread;
 
     private Vector<User> users = new Vector<User>();//Vector for a users on the server
@@ -29,7 +31,8 @@ public class SMTPServer extends JFrame implements ActionListener {
     }
 
     public SMTPServer() {
-        doLoadUsers();
+    	addUsers add = new addUsers();//create new user.obj file
+    	doLoadUsers();
         setupWindow();
 
         jpNorth.add(jbStart);//add jbStart to GUI
@@ -44,7 +47,15 @@ public class SMTPServer extends JFrame implements ActionListener {
         jpCenter.add(jlLog);//add Log to the GUI
         jpCenter.add(new JScrollPane(jtaLog));
         this.add(jpCenter, BorderLayout.CENTER);
-
+        
+        try{
+        jtfIP.setText("" + InetAddress.getLocalHost().getHostAddress());
+        jtfIP.setEditable(false);
+        }
+        catch(Exception e){}
+        jpSouth.add(jtfIP);
+        this.add(jpSouth, BorderLayout.SOUTH);
+        
         jbStart.addActionListener(this);
 
         /*If the window for the server GUI is closed the server threads are killed*/

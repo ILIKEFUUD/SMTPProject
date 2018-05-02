@@ -23,7 +23,11 @@ public class addUsers implements Serializable{
             student.getEmail().add(new MailConstants(false, "Student", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
             User test = new User("test123", "test123");
             test.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
-
+            User guest = new User("iste121", "iste121");
+            guest.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
+            User relay = new User("server","server");
+            relay.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
+            
             InetAddress IP = InetAddress.getLocalHost();
 
             brennan.setIP(IP.getHostAddress());
