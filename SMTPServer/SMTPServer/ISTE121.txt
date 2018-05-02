@@ -1,0 +1,11 @@
+Encrypted: false
+To: ISTE121@10.150.100.63
+From: student
+CC: ISTE121@10.150.100.63
+Date: ISTE121@10.150.100.63
+Subject: Wed May 02 11:48:17 EDT 2018
+Subject:relayed message
+_NOT-ENCRYPTED_
+this message should be relayed
+.
+

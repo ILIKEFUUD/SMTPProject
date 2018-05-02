@@ -1,0 +1,141 @@
+Encrypted: false
+To: test@129.21.67.86
+From: student
+CC: :test@129.21.67.86
+Date: :test@129.21.67.86
+Subject::Mon Apr 30 10:29:53 EDT 2018
+Subject:pls work this is the subject
+hellppppppp
+
+.
+
+Encrypted: true
+To: test@10.150.100.63
+From: test
+CC: test@10.150.100.63
+Date: Wed May 02 10:52:24 EDT 2018
+Subject: HELLO WORLD
+_ENCRYPTED_
+HELLO WORLD
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: me
+CC:  test@10.150.100.63
+Date:  02-05-2018
+Subject:  test message
+Mama mia that's a spicy meatball
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: me
+CC:  test@10.150.100.63
+Date:  02-05-2018
+Subject:  More thing
+The spiciest meatball of all is friendship.
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: student
+CC: test@10.150.100.63
+Date: test@10.150.100.63
+Subject: Wed May 02 11:59:03 EDT 2018
+Subject:test subject
+_NOT-ENCRYPTED_
+test email
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:20:06 EDT 2018
+Subject: sUBJECT
+_NOT-ENCRYPTED_
+lINE 1
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:23:01 EDT 2018
+Subject: Life
+_NOT-ENCRYPTED_
+Why?
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:23:31 EDT 2018
+Subject: Subject
+_NOT-ENCRYPTED_
+Message
+.
+
+Encrypted: true
+To: test@10.150.100.63
+From: test
+CC: 
+Date: Wed May 02 13:24:20 EDT 2018
+Subject: Hello
+_ENCRYPTED_
+U my iadduqp
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:27:06 EDT 2018
+Subject: Life
+_NOT-ENCRYPTED_
+Why?
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:35:26 EDT 2018
+Subject: Death
+_NOT-ENCRYPTED_
+Please
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: God
+Date: Wed May 02 13:46:04 EDT 2018
+Subject: Existence
+_NOT-ENCRYPTED_
+What kind of cruel joke
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: adfg
+Date: Wed May 02 13:48:46 EDT 2018
+Subject: sdfjhkk
+_NOT-ENCRYPTED_
+asdfhjk
+asdsf
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: test
+CC: Nowhere
+Date: Wed May 02 13:54:32 EDT 2018
+Subject: Test Subject
+_NOT-ENCRYPTED_
+Refresh?
+.
+
