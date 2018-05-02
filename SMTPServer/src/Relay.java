@@ -41,11 +41,27 @@ public class Relay implements Runnable{
         SMTPSend(newEmail);
     }
     
-    public void doConnect(){
+    private void doLogin(){
     	
+    	pwt.println(userName);
+    	pwt.flush();
+    	pwt.println(passWord);
+    	pwt.flush();
     	
+    	if (!scan.nextLine().equals("ACCEPTED")){
+    		JOptionPane.showMessageDialog(null, this, "Login Failed", 0);
+    		return;
+    	}
+    	else{
+    		pwt.println("LOGGED IN");
+    		pwt.flush();
+    		if(!scan.nextLine().contains("220"))
+    			JOptionPane.showMessageDialog(null, this, "Login Failed", 0);
+    		else
+    			SMTPSend(newEmail);
+    	}
     }
-
+    
     public void SMTPSend(MailConstants email){
         //when sending email, say HELO first
         try{

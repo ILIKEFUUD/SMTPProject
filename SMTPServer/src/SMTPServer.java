@@ -105,8 +105,11 @@ public class SMTPServer extends JFrame implements ActionListener {
         sThread = new ServerThread();
         sThread.start();
         jbStart.setText("Stop");
+        try{
         queue.start();//When the server is started the FIFOHAndler will start as well. No Clients need to be connected to handle incoming mail
-    }
+        }
+        catch(Exception e){}
+   }
 
     /**
      * doStop - calls kill method which ends the server
