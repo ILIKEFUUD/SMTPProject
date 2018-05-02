@@ -154,8 +154,8 @@ public class SMTP_Client{
             try{
                new Inbox();
             //System.out.println(test);
-               pwt.println("LOGGED IN");
-               pwt.flush();
+               //pwt.println("LOGGED IN");
+               //pwt.flush();
                if(!scan.nextLine().contains("220")){
                   JOptionPane.showMessageDialog(null, "Error: ", "Connection error", JOptionPane.ERROR_MESSAGE);
                }
@@ -495,7 +495,7 @@ email GUI display class
       public Draft(){
       
          this.setTitle("Draft");
-         this.setSize(600, 300);
+         this.setSize(700, 300);
          this.setLocation(100, 100);
          this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
          this.setLayout(new BorderLayout());
@@ -580,7 +580,7 @@ email GUI display class
             //change message
             sending.setMessage(rot(jtaMessage.getText()));
          }else{ //message not encrypted
-            sending.setEncrypted(true);
+            sending.setEncrypted(false);
             sending.setMessage(jtaMessage.getText());
          }
       
