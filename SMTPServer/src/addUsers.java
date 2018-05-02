@@ -27,6 +27,8 @@ public class addUsers implements Serializable{
             guest.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
             User relay = new User("server","server");
             relay.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
+            User ISTE = new User("ISTE121","ISTE121");
+            ISTE.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
             
             InetAddress IP = InetAddress.getLocalHost();
 

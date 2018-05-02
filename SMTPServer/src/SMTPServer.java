@@ -200,7 +200,7 @@ public class SMTPServer extends JFrame implements ActionListener {
                         pwt.println("ACCEPTED");
                         pwt.flush();
                         jtaLog.append("Server: Login Accepted" + "\n");
-                        jtaLog.append(scn.nextLine() + "\n");
+                       // jtaLog.append(scn.nextLine() + "\n");
                         pwt.println("220 OK");
                         pwt.flush();
                         ct.start();
@@ -210,7 +210,7 @@ public class SMTPServer extends JFrame implements ActionListener {
                     else {
                         pwt.println("421 SERVICE NOT AVAILABLE");
                         pwt.flush();
-                        jtaLog.append("Server: 421 SERVICE NOT AVAILABLE");
+                        jtaLog.append("Server: 421 SERVICE NOT AVAILABLE" + "\n");
                     }
 
                 } catch (Exception e) {
@@ -370,9 +370,9 @@ public class SMTPServer extends JFrame implements ActionListener {
             int counter = 0;
 
             try {
-                pwt.println("250 Hello" + name + "Nice to meet you");
+                pwt.println("250 HELO" + name + "Nice to meet you");
                 pwt.flush();
-                jtaLog.append("250 Hello Nice to meet you" + "\n");
+                jtaLog.append("250 HELO Nice to meet you" + "\n");
 
                 /*MAILFROM BLOCK*/
                 response = scn.nextLine();

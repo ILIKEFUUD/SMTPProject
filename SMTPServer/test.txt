@@ -19,3 +19,21 @@ _ENCRYPTED_
 HELLO WORLD
 .
 
+Encrypted: false
+To: test@10.150.100.63
+From: me
+CC:  test@10.150.100.63
+Date:  02-05-2018
+Subject:  test message
+Mama mia that's a spicy meatball
+.
+
+Encrypted: false
+To: test@10.150.100.63
+From: me
+CC:  test@10.150.100.63
+Date:  02-05-2018
+Subject:  More thing
+The spiciest meatball of all is friendship.
+.
+
