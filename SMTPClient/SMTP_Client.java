@@ -246,6 +246,8 @@ public class SMTP_Client{
    
    //JTable for showing emails
       private Vector<MailConstants> mailbox;
+      private Vector<Vector> data = new Vector<Vector>(); //2d vector for data
+      private DefaultTableModel model;
       private Vector<String> columnNames = new Vector<String>();
       private Vector<Vector<String>> emailInfo = new Vector<Vector<String>>();
       private JTable jtInbox;
@@ -297,6 +299,13 @@ public class SMTP_Client{
          jmiDraft.addActionListener(this);
          jmiExit.addActionListener(this);
          jmiMailbox.addActionListener(this);
+         
+         jtInbox = new JTable(data, columnNames);
+         model = new DefaultTableModel(data, columnNames);
+         jtInbox.setModel(model);
+         JScrollPane jspInbox = new JScrollPane(jtInbox);
+         this.add(jspInbox, BorderLayout.CENTER);
+         
          this.setVisible(true);
       
       }
@@ -339,7 +348,18 @@ public class SMTP_Client{
          for(int i=0;i<count;i++){
             MailConstants email;
             synchronized(scan){
-               email = new MailConstants(false, scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), scan.nextLine(), "");
+               email = new MailConstants(false, "", "", "", "", "", "");
+               email.setEncrypted(false);
+               email.setTo(scan.nextLine());
+                  System.out.println("To " + email.getTo());
+               email.setFrom(scan.nextLine());
+                  System.out.println("From " + email.getFrom());
+               email.setCC(scan.nextLine());
+                  System.out.println("CC " + email.getCC());
+               email.setDate(scan.nextLine());
+                  System.out.println("Date " + email.getDate());
+               email.setSubject(scan.nextLine());
+                  System.out.println("Subject " + email.getSubject());
                String message = "";
                while(true){
                   String line = scan.nextLine();
@@ -360,7 +380,7 @@ public class SMTP_Client{
                }
                email.setMessage(message);
             }
-            System.out.println(email.getSubject());
+         //   System.out.println(email.getSubject());
          //       		email.setEncrypted(scan.nextLine());
          //       		email.setTo(scan.nextLine());
          //       		email.setFrom(scan.nextLine());
@@ -368,11 +388,13 @@ public class SMTP_Client{
          //       		email.setDate(scan.nextLine());
          //       		email.setSubject(scan.nextLine());
          //       		email.setMessage(scan.nextLine());
-            System.out.println(email.getEncrypted());
+         //   System.out.println(email.getEncrypted());
             inbox.add(email);
          }
+         pwt.println("RECEPTION COMPLETE");
+         pwt.flush();
          
-         Vector<Vector> data = new Vector<Vector>(); //2d vector for data
+         data.clear();
          for(MailConstants m : inbox){
             Vector<String> emailData = new Vector<String>(); //individual data for each email
             String from = m.getFrom();
@@ -385,7 +407,6 @@ public class SMTP_Client{
             emailInfo.add(emailData);
          }
          
-         jtInbox = new JTable(data, columnNames);
       
          jtInbox.addMouseListener(
             new java.awt.event.MouseAdapter() {
@@ -395,9 +416,9 @@ public class SMTP_Client{
                   new EmailDisplay(called);
                }
             });
-      
-         JScrollPane jspInbox = new JScrollPane(jtInbox);
-         this.add(jspInbox, BorderLayout.CENTER);
+         
+         model.fireTableDataChanged();
+         
          this.setVisible(true);
       }
    
