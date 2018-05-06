@@ -1,0 +1,229 @@
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:37:40 EDT 2018
+Subject: Please
+_NOT-ENCRYPTED_
+For the love of God
+WORK
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:40:23 EDT 2018
+Subject: Maybe
+_NOT-ENCRYPTED_
+Will this work
+rolly nah
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:44:33 EDT 2018
+Subject: ?????
+_NOT-ENCRYPTED_
+???
+???
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:48:53 EDT 2018
+Subject: Welp
+_NOT-ENCRYPTED_
+Kill
+Me
+Pls
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:51:40 EDT 2018
+Subject: asdfgj
+_NOT-ENCRYPTED_
+asdfghj
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:52:49 EDT 2018
+Subject: asdfghj
+_NOT-ENCRYPTED_
+asdfghj
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:56:07 EDT 2018
+Subject: asdfghkj;l
+_NOT-ENCRYPTED_
+etyui'ljl;rewrtyuiop
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 12:56:42 EDT 2018
+Subject: sjkl;triyujlk
+_NOT-ENCRYPTED_
+dghkbmdsfhjyj,
+adfhbsrhergj
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:00:10 EDT 2018
+Subject: sdghjkl;tr
+_NOT-ENCRYPTED_
+h,bvfyikmnbdfhdg,dgh
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:02:01 EDT 2018
+Subject: lkjhgfdretyj
+_NOT-ENCRYPTED_
+euoyljhhgretyjertj
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:10:23 EDT 2018
+Subject: Encrypt Test
+_ENCRYPTED_
+Bxqmeq
+Xqf uf iadw
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:18:10 EDT 2018
+Subject: Please
+_ENCRYPTED_
+nullnullnullnullnullnull nullnullnullnull
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:20:08 EDT 2018
+Subject: Please?
+_ENCRYPTED_
+Cyrnfr Jbex
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:25:30 EDT 2018
+Subject: Maybe
+_ENCRYPTED_
+Vg zvtug jbex
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:26:38 EDT 2018
+Subject: Who Knows
+_ENCRYPTED_
+Znlor jr trg yhpxl
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:27:54 EDT 2018
+Subject: Please
+_ENCRYPTED_
+Yrg guvf jbex
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:29:16 EDT 2018
+Subject: PLEASE
+_ENCRYPTED_
+ORTTVAT ABJ
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:29:44 EDT 2018
+Subject: PLEASE
+_ENCRYPTED_
+V SHPXRQ HC
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:36:09 EDT 2018
+Subject: See
+_ENCRYPTED_
+Ybbx Wbeqna
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:37:40 EDT 2018
+Subject: Blargh
+_NOT-ENCRYPTED_
+Lesseee
+.
+
+Encrypted: false
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:45:58 EDT 2018
+Subject: Please
+_NOT-ENCRYPTED_
+Let this work
+I don't want it to break
+.
+
+Encrypted: true
+To: test@10.100.100.3
+From: test
+CC: 
+Date: Sun May 06 13:46:26 EDT 2018
+Subject: Encrypt Test
+_ENCRYPTED_
+Yrg'f frr
+Qbrf vg jbex
+.
+

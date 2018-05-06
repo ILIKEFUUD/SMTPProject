@@ -37,27 +37,6 @@ public class FIFOQueue<T> {
     public boolean empty() {
         return queue.size() == 0;
     }
-
-    /** toString
-     * Return a string representation of the queue
-     */
-    public String toString() {
-        String retVal = "";
-
-        if(queue.size() == 0)
-            return "  EMPTY\n";
-
-        if(queue.size() == 1)
-            return "  " + queue.get(0).toString() + " <-- HEAD <-- TAIL\n";
-
-        retVal = "  " + queue.get(0).toString() + " <-- HEAD\n";
-
-        for(int i = 1; i < queue.size() - 1; i++) {
-            retVal += "  " + queue.get(i).toString() + "\n";
-        }
-        retVal += "  " + queue.get(queue.size() - 1).toString() + " <-- TAIL\n";
-        return retVal;
-    }
 }
 
 /**

@@ -44,6 +44,7 @@ public class SMTPServer extends JFrame implements ActionListener {
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         jtaLog.setLineWrap(true);
         jtaLog.setWrapStyleWord(true);
+        jtaLog.setEditable(false);
 
         jpCenter.add(jlLog);//add Log to the GUI
         jpCenter.add(new JScrollPane(jtaLog));
@@ -257,6 +258,10 @@ public class SMTPServer extends JFrame implements ActionListener {
 
         /**
          * ClientThread - passed in socket, user, oos, and ois
+         * @param Socket - socket user connected with
+         * @param User - the user who is logged in
+         * @param  PrintWriter - the user's printwriter established when they connected
+         * @param Scaner - the user's scanner established when they connected
          */
         public ClientThread(Socket socket, User _user, PrintWriter Out, Scanner In) {
             try {
@@ -317,26 +322,17 @@ public class SMTPServer extends JFrame implements ActionListener {
                 for (int i = 0; i < count; i++) {
                     MailConstants send = sendBox.get(i);
                     synchronized (clientSocket) {
-//                      pwt.println(send.getEncrypted());
-//                      System.out.println(send.getEncrypted());
-//                      pwt.flush();
                         pwt.println(send.getTo());
-                        System.out.println(send.getTo());
                         pwt.flush();
                         pwt.println(send.getFrom());
-                        System.out.println(send.getFrom());
                         pwt.flush();
                         pwt.println(send.getCC());
-                        System.out.println(send.getCC());
                         pwt.flush();
                         pwt.println(send.getDate());
-                        System.out.println(send.getDate());
                         pwt.flush();
                         pwt.println(send.getSubject());
-                        System.out.println(send.getSubject());
                         pwt.flush();
                         pwt.println(send.getMessage());
-                        System.out.println(send.getMessage());
                         pwt.flush();
                         pwt.println("_DONE_");
                         pwt.flush();
@@ -345,7 +341,6 @@ public class SMTPServer extends JFrame implements ActionListener {
                 jtaLog.append("Server: Mailbox Sent" + "\n");
 
                 String receive = (String) scn.nextLine();
-                System.out.println(receive);
                 if (receive.equals("RECEPTION COMPLETE")) {
                     jtaLog.append(name + receive + "\n");
                 } else {
@@ -437,22 +432,17 @@ public class SMTPServer extends JFrame implements ActionListener {
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 ccAddress = response.substring(beginning + 1);
-                String[] addresses = ccAddress.split(",");
+                // String[] addresses = ccAddress.split(",");
                 
-                	
-                System.out.println(ccAddress);
-
                 response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 date = response.substring(beginning + 1);
-                System.out.println(date);
 
                 response = scn.nextLine();
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 subject = response.substring(beginning + 1);
-                System.out.println(subject);
 
                 while (counter < 1) {
                     response = scn.nextLine();
@@ -460,8 +450,7 @@ public class SMTPServer extends JFrame implements ActionListener {
                         counter++;
                     else if (response.contains("_ENCRYPTED_"))
                         encrypt = true;
-
-                    System.out.println(counter);
+                     
                     message += response + "\n";
                     jtaLog.append("Server: Message Received : " + response + "\n");
                 }
@@ -469,19 +458,16 @@ public class SMTPServer extends JFrame implements ActionListener {
                 pwt.println("250 OK Queued");
                 pwt.flush();
                 jtaLog.append("Server: 250 OK" + "\n");
+               
                 /*DATA BLOCK END*/
-                System.out.println(encrypt);
                 MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
                 fifo.enqueue(newEmail);
                 
-               for(String address : addresses){
-               	newEmail.setCC("");
-                  Relay relay = new Relay(address.substring(0, address.indexOf("@")), address.substring(address.indexOf("@") + 1), newEmail);
-               	relay.start();
-               }
-               
-                System.out.println("Added to queue");
-                System.out.println(fifo.empty());
+               // for(String address : addresses){
+//                	newEmail.setCC("");
+//                   Relay relay = new Relay(address.substring(0, address.indexOf("@")), address.substring(address.indexOf("@") + 1), newEmail);
+//                	relay.start();
+//                }
 
             }//try
 
@@ -542,11 +528,9 @@ public class SMTPServer extends JFrame implements ActionListener {
 
             if (locateUser != null) {
                 saveEmail(locateUser, newEmail);
-                System.out.println("Save Email");
             } else {
                 Relay newRelay = new Relay(mailTo, ip, newEmail);
                 newRelay.start();
-                System.out.println("relay started");
             }
 
 
@@ -587,8 +571,8 @@ public class SMTPServer extends JFrame implements ActionListener {
         }
 
         /**
-         * @param name -name is used to check if the destination user is on the server or not
-         * @param ip   -used to check if the destination ip matches the server ip
+         * @param String name -name is used to check if the destination user is on the server or not
+         * @param String ip   -used to check if the destination ip matches the server ip
          * @return -returns null if the user is not on the server
          */
         private User onServer(String name, String ip) {
