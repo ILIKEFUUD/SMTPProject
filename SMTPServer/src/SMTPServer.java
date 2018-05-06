@@ -382,7 +382,7 @@ public class SMTPServer extends JFrame implements ActionListener {
                     pwt.println("421 SERVICE NOT AVAILABLE");
                     pwt.flush();
                     jtaLog.append("Server: 421 SERVICE NOT AVAILABLE " + "\n");
-                    return;//break out of method?
+                    return;//break out of method
                 } else {
                     beginning = response.indexOf("<");
                     end = response.indexOf(">");
@@ -437,7 +437,7 @@ public class SMTPServer extends JFrame implements ActionListener {
                 jtaLog.append(name + response + "\n");
                 beginning = response.indexOf(":");
                 ccAddress = response.substring(beginning + 1);
-//                String[] addresses = ccAddress.split(",");
+                String[] addresses = ccAddress.split(",");
                 
                 	
                 System.out.println(ccAddress);
@@ -474,11 +474,12 @@ public class SMTPServer extends JFrame implements ActionListener {
                 MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
                 fifo.enqueue(newEmail);
                 
-//                for(String address : addresses){
-//                	Relay relay = new Relay(address.substring(0, address.indexOf("@")), address.substring(address.indexOf("@") + 1), newEmail);
-//                	relay.start();
-//                }
-//                
+               for(String address : addresses){
+               	newEmail.setCC("");
+                  Relay relay = new Relay(address.substring(0, address.indexOf("@")), address.substring(address.indexOf("@") + 1), newEmail);
+               	relay.start();
+               }
+               
                 System.out.println("Added to queue");
                 System.out.println(fifo.empty());
 
