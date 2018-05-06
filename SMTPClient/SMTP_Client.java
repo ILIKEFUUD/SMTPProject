@@ -148,14 +148,10 @@ public class SMTP_Client{
    Creates main inbox value
    */
       public void doLogin(){
-         System.out.println("Clicked login");
          boolean login = doConnect(jtfUser.getText(), jtfPass.getText(), jtfIP.getText());
          if(login == true){
             try{
                new Inbox();
-            //System.out.println(test);
-               //pwt.println("LOGGED IN");
-               //pwt.flush();
                if(!scan.nextLine().contains("220")){
                   JOptionPane.showMessageDialog(null, "Error: ", "Connection error", JOptionPane.ERROR_MESSAGE);
                }
@@ -207,24 +203,19 @@ public class SMTP_Client{
             String conn = "";
             try{
                conn = scan.nextLine();
-               System.out.println(conn);
             
             }
             catch(Exception e){
-            //weird error ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               e.printStackTrace();
             }
             if(conn.contains("ACCEPTED")){//username and password is correct
                return true;
             }
             else{
-               System.out.println(conn);
                return false;
             }
          }
          catch(Exception e){ //could not connect to server, wrong IP or some other error
             JOptionPane.showMessageDialog(null, "Unable to connect to server: " + e, "Connection Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             return false;
          }//doConnect
       }
@@ -250,6 +241,7 @@ public class SMTP_Client{
       private DefaultTableModel model;
       private Vector<String> columnNames = new Vector<String>();
       private Vector<Vector<String>> emailInfo = new Vector<Vector<String>>();
+      Vector<MailConstants> inbox;
       private JTable jtInbox;
       private int mailCount = 0;
       
@@ -265,7 +257,7 @@ public class SMTP_Client{
       //hashmap for encryption
          rot13 = new HashMap<Character, Character>();
          String[] normalAlpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-         String[] shiftAlpha = "mnopqrstuvwxyzabcdefghijklMNOPQRSTUVWXYZABCDEFGHIJKL".split("");
+         String[] shiftAlpha = "nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM".split("");
       
       //put into hashmap
          for(int i = 0; i < normalAlpha.length; i++){
@@ -300,11 +292,21 @@ public class SMTP_Client{
          jmiExit.addActionListener(this);
          jmiMailbox.addActionListener(this);
          
+         inbox = new Vector<MailConstants>();
          jtInbox = new JTable(data, columnNames);
          model = new DefaultTableModel(data, columnNames);
          jtInbox.setModel(model);
          JScrollPane jspInbox = new JScrollPane(jtInbox);
          this.add(jspInbox, BorderLayout.CENTER);
+         
+         jtInbox.addMouseListener(
+            new java.awt.event.MouseAdapter() {
+               public void mouseClicked(java.awt.event.MouseEvent evt) {
+                  int row = jtInbox.rowAtPoint(evt.getPoint());
+                  MailConstants called = inbox.get(row);
+                  new EmailDisplay(called);
+               }
+            });
          
          this.setVisible(true);
       
@@ -344,22 +346,18 @@ public class SMTP_Client{
          pwt.println("MLBX");									//command to server
          pwt.flush();
          int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
-         Vector<MailConstants> inbox = new Vector<MailConstants>();	//inbox vector
+         System.out.println(count);
+         inbox.clear();
          for(int i=0;i<count;i++){
             MailConstants email;
             synchronized(scan){
                email = new MailConstants(false, "", "", "", "", "", "");
                email.setEncrypted(false);
                email.setTo(scan.nextLine());
-                  System.out.println("To " + email.getTo());
                email.setFrom(scan.nextLine());
-                  System.out.println("From " + email.getFrom());
                email.setCC(scan.nextLine());
-                  System.out.println("CC " + email.getCC());
                email.setDate(scan.nextLine());
-                  System.out.println("Date " + email.getDate());
                email.setSubject(scan.nextLine());
-                  System.out.println("Subject " + email.getSubject());
                String message = "";
                while(true){
                   String line = scan.nextLine();
@@ -367,28 +365,17 @@ public class SMTP_Client{
                   if(line.equals("_DONE_")){
                      break;
                   }
-                  else if(line.contains("_QZODKBFQP_")){
+                  else if(line.contains("_RAPELCGRQ_") || line.contains("_ENCRYPTED_")){
                      //set to encrypted
-                     
                      email.setEncrypted(true);
                      message += line + "\n";
                   }
                   else{
-                     
                      message += line + "\n";
                   }
                }
                email.setMessage(message);
             }
-         //   System.out.println(email.getSubject());
-         //       		email.setEncrypted(scan.nextLine());
-         //       		email.setTo(scan.nextLine());
-         //       		email.setFrom(scan.nextLine());
-         //       		email.setCc(scan.nextLine());
-         //       		email.setDate(scan.nextLine());
-         //       		email.setSubject(scan.nextLine());
-         //       		email.setMessage(scan.nextLine());
-         //   System.out.println(email.getEncrypted());
             inbox.add(email);
          }
          pwt.println("RECEPTION COMPLETE");
@@ -406,16 +393,6 @@ public class SMTP_Client{
             data.add(emailData);
             emailInfo.add(emailData);
          }
-         
-      
-         jtInbox.addMouseListener(
-            new java.awt.event.MouseAdapter() {
-               public void mouseClicked(java.awt.event.MouseEvent evt) {
-                  int row = jtInbox.rowAtPoint(evt.getPoint());
-                  MailConstants called = inbox.get(row);
-                  new EmailDisplay(called);
-               }
-            });
          
          model.fireTableDataChanged();
          
@@ -447,7 +424,7 @@ email GUI display class
    */
       public EmailDisplay(MailConstants e){
          this.setTitle("Email");
-         this.setSize(600, 300);
+         this.setSize(650, 300);
          this.setLocation(100, 100);
          this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
          this.setLayout(new BorderLayout());
@@ -472,10 +449,14 @@ email GUI display class
          jtaMessage.setEditable(false);
          //decrypt if encrypted
          if(e.getEncrypted() == true){
-            jtaMessage.setText(rot(e.getMessage())); //set text as decrypted message
+            String tempCrypt = rot(e.getMessage());
+            tempCrypt = tempCrypt.substring(12, tempCrypt.length());
+            jtaMessage.setText(tempCrypt); //set text as decrypted message
          }
          else{
-            jtaMessage.setText(e.getMessage());
+            String tempCrypt = e.getMessage();
+            tempCrypt = tempCrypt.substring(16, tempCrypt.length());
+            jtaMessage.setText(tempCrypt);
          }
          
       
@@ -509,14 +490,6 @@ email GUI display class
       private JButton jbSend = new JButton("Send");
       private JButton jbExit = new JButton("Exit");
       private JCheckBox jcbEncrypted = new JCheckBox("Encrypted");
-      
-      
-   
-   //private JMenuBar jmbBar = new JMenuBar();
-   //private JMenu jmMenu = new JMenu("File");
-   //private JMenuItem jmiDraft = new JMenuItem("Send");
-   //private JMenuItem jmiSExit = new JMenuItem("Save and Exit");
-   //private JMenuItem jmiDExit = new JMenuItem("Discard and Exit");
    
    /**
    Draft constructor
@@ -525,20 +498,11 @@ email GUI display class
       public Draft(){
       
          this.setTitle("Draft");
-         this.setSize(700, 300);
+         this.setSize(750, 300);
          this.setLocation(100, 100);
          this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
          this.setLayout(new BorderLayout());
       
-      //this.setJMenuBar(jmbBar);
-      //jmbBar.add(jmMenu);
-      //jmMenu.add(jmiDraft);
-      //jmMenu.add(jmiSExit);
-      //jmMenu.add(jmiDExit);
-      
-      //jmiDraft.addActionListener(this);
-      //jmiSExit.addActionListener(this);
-      //jmiDExit.addActionListener(this);
          jbSend.addActionListener(this);
          jbExit.addActionListener(this);
       
@@ -550,6 +514,7 @@ email GUI display class
          jpCc.setLayout(new FlowLayout(FlowLayout.LEFT));
          jpCc.add(jlCc);
          jpCc.add(jtfCc);
+         jtfCc.setEditable(false);
       
          jpSubject.setLayout(new FlowLayout(FlowLayout.LEFT));
          jpSubject.add(jlSubject);
@@ -582,11 +547,8 @@ email GUI display class
                doSend();
                this.dispose();
                break;
-            case "Save and Exit":
-            //Theoretically save the written data to a file, maybe CSV?
-               break;
-            case "Discard and Exit":
-            //Just exit
+            case "Exit":
+               //Just exit
                this.dispose();
                break;
          }
@@ -610,7 +572,6 @@ email GUI display class
          //get if encrypted
          if(jcbEncrypted.isSelected()){
             //encrypted is true
-            System.out.println("set encry");
             sending.setEncrypted(true);
             //change message
             sending.setMessage(rot(jtaMessage.getText()));
@@ -637,7 +598,6 @@ email GUI display class
       //ROT13 decrypt
       String decrypted = "";
       
-      System.out.println(message);
       for(int i = 0; i < message.length(); i++){//for every letter in the message
          //subtract 13 to the char value and append to decrypted
          char letter = message.charAt(i);
@@ -646,11 +606,9 @@ email GUI display class
          }
          else{
             decrypted += letter;
-            System.out.println("AH");
          }
          
       }
-      System.out.println(decrypted);
       return decrypted;
       
    }
@@ -661,13 +619,11 @@ email GUI display class
    private void SMTPSend(MailConstants email){ 
    //when sending email, say HELO first
       try{
-         System.out.println("running send");
       
          pwt.println("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          pwt.flush();
       //get reply
          String reply =  scan.nextLine();
-         System.out.println("reading in reply");
          if(reply.substring(0,3).equals("250")){
          
          //ok to send the from
@@ -696,16 +652,12 @@ email GUI display class
                      
                      pwt.println("From:" + email.getFrom());
                      pwt.flush();
-                     System.out.println("~from: " + email.getFrom());
                      pwt.println("To:" + email.getTo());
                      pwt.flush();
-                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Cc:" + email.getCC());
                      pwt.flush();
-                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Date:" + email.getDate());
                      pwt.flush();
-                     System.out.println("~from: " + email.getFrom());
                      pwt.println("Subject:" + email.getSubject());
                      pwt.flush();
                   
@@ -726,10 +678,8 @@ email GUI display class
                      }
                   //endof message
                   //send the carriage return lf 
-                     System.out.println("end of message");
                      pwt.println("."); //SMTP required end of message ~~~~~~
                      pwt.flush();
-                     System.out.println("should have returned");
                   //see if server responded with OK
                      reply =  scan.nextLine();
                      if(reply.substring(0,3).equals("250")){
@@ -741,8 +691,6 @@ email GUI display class
                         reply =  scan.nextLine();
                         if(reply.substring(0,3).equals("221")){
                         //done sending email
-                           System.out.println("should dispose");
-                           
                         }
                      
                      }
