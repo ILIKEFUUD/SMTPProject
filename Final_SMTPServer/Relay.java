@@ -62,8 +62,6 @@ public class Relay extends Thread{
          return;
       }
       else{
-         pwt.println("LOGGED IN");
-         pwt.flush();
          if(!scan.nextLine().contains("220"))
             JOptionPane.showMessageDialog(null,"Login Failed");
          else
