@@ -534,6 +534,7 @@ public class SMTPServer extends JFrame implements ActionListener {
          } else {
             Relay newRelay = new Relay(mailTo, ip, newEmail);
             newRelay.start();
+            System.out.println("Relay Started");
          }
       
       
