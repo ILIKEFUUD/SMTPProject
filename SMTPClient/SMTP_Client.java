@@ -41,7 +41,7 @@ public class SMTP_Client{
       creates new login object, first window to show to user
    */
    public SMTP_Client(){
-      new Login();                                                      //currently does nothing but create login window
+      new Login();
    }
 
 
@@ -327,7 +327,6 @@ public class SMTP_Client{
                System.exit(0);
                break;
             case "Refresh":
-               System.out.println("test");
                refresh();
                break;
          }
@@ -346,7 +345,6 @@ public class SMTP_Client{
          pwt.println("MLBX");									//command to server
          pwt.flush();
          int count = Integer.parseInt(scan.nextLine());				//how many emails are coming
-         System.out.println(count);
          inbox.clear();
          for(int i=0;i<count;i++){
             MailConstants email;
@@ -620,11 +618,11 @@ email GUI display class
    //when sending email, say HELO first
       try{
       
-         pwt.println("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         pwt.println("HELO server@");
          pwt.flush();
       //get reply
          String reply =  scan.nextLine();
-         if(reply.substring(0,3).equals("250")){
+         if(reply.contains("250")){
          
          //ok to send the from
             String send = "MAIL FROM:<" + email.getFrom() + ">";
@@ -633,7 +631,7 @@ email GUI display class
             pwt.flush();
          //get reply
             reply =  scan.nextLine();
-            if(reply.substring(0,3).equals("250")){
+            if(reply.contains("250")){
             //ok to send to's
             //send the one 'to' 
                pwt.println("RCPT TO:<" + email.getTo() + ">");
@@ -641,13 +639,13 @@ email GUI display class
             
             //now send DATA, then send actual email stuff
                reply =  scan.nextLine();
-               if(reply.substring(0,3).equals("250")){
+               if(reply.contains("250")){
                //ok to send DATA
                //tell server I am sending an email over
                   pwt.println("DATA");
                   pwt.flush();
                   reply =  scan.nextLine();
-                  if(reply.substring(0,3).equals("354")){
+                  if(reply.contains("354")){
                   //send every data field in MailConstants
                      
                      pwt.println("From:" + email.getFrom());
@@ -679,50 +677,51 @@ email GUI display class
                   //endof message
                   //send the carriage return lf 
                      pwt.println("."); //SMTP required end of message ~~~~~~
+                     
                      pwt.flush();
                   //see if server responded with OK
                      reply =  scan.nextLine();
-                     if(reply.substring(0,3).equals("250")){
+                     if(reply.contains("250")){
                      //reply with QUIT
                         pwt.println("QUIT");
                         pwt.flush();
                      
                      //server replies with 221 bye
                         reply =  scan.nextLine();
-                        if(reply.substring(0,3).equals("221")){
+                        if(reply.contains("221")){
                         //done sending email
                         }
-                     
+                        else{
+                           JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: 221 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
+                        }
                      }
                      else{
-                        System.out.println("broke");
+                        JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: . 250 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
                      }
                   }
                   else{
-                     System.out.println("broke");
+                     JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: 354 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
                   }
-               
-               
                }
                else{
-                  System.out.println("broke");
+                  JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: RCPT 250 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
                }
             
             }
             else{
-               System.out.println("broke");
+               JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: MAIL FROM 250 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
             
             } 
          }
          else{
          //SERVICE NOT AVAILABLE
-            System.out.println(reply);
+            JOptionPane.showMessageDialog(null, "Server Does Not Follow SMTP Protocol: HELO 250 NOT RECEIVED", "SMTP ERROR", JOptionPane.ERROR_MESSAGE);
             return;//break out of send
          }
       
       }
       catch(Exception e){
-         e.printStackTrace();
+         JOptionPane.showMessageDialog(null, "Sending Error " + e, "Sending Error", JOptionPane.ERROR_MESSAGE);
       }
    }
    
