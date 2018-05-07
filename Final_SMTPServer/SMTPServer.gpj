@@ -12,19 +12,18 @@ s#i0
 s#k0
 s#j0
 s#l0
-!106;u
-a0	b70	c255	f%\011SMTPServer.jar	g%\011SMTPServer.zip	hManifest-Version\0111.0\011Main-Class\011SMTPServer!30;a
-a%\011SMTPServer_doc%s	b	c1	d1!115;g
-%\011FIFOQueue.java
-%\011MailConstants.java
-%\011SMTPServer.java
-%\011Relay.java
-%\011User.java
+!78;u
+a0	b70	c255	f%\011SMTPServer.jar	g%\011SMTPServer.zip	hManifest-Version\0111.0!115;g
 %\011addUsers.java
+%\011MailConstants.java
+%\011Relay.java
+%\011SMTPServer.java
+%\011User.java
+%\011FIFOQueue.java
 !115;f
-%\011FIFOQueue.java
-%\011MailConstants.java
-%\011SMTPServer.java
-%\011Relay.java
-%\011User.java
 %\011addUsers.java
+%\011MailConstants.java
+%\011Relay.java
+%\011SMTPServer.java
+%\011User.java
+%\011FIFOQueue.java

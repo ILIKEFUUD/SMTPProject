@@ -72,128 +72,116 @@ public class Relay extends Thread{
    }
     
     /* SMTPSend - method that is run in the client that handles the SMTP protocol to send a relay message */
-   public void SMTPSend(MailConstants email){
-        //when sending email, say HELO first
+   private void SMTPSend(MailConstants email){ 
+   //when sending email, say HELO first
       try{
-         System.out.println("running send");
       
          pwt.println("HELO server@"); //REORGANIZE SO WE CAN ACCESS CLIENT VARS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          pwt.flush();
-            //get reply
-         String reply = "";
-         try{
-            reply =  scan.nextLine();
-         }
-         catch(Exception e){}//catch to ignore no reply
-         System.out.println("reading in reply");
-         if(reply.contains("250")){
+      //get reply
+         String reply =  scan.nextLine();
+         if(reply.substring(0,3).equals("250")){
          
-                //ok to send the from
+         //ok to send the from
             String send = "MAIL FROM:<" + email.getFrom() + ">";
-         
+            
             pwt.println(send);
             pwt.flush();
-                //get reply
+         //get reply
             reply =  scan.nextLine();
             if(reply.substring(0,3).equals("250")){
-                    //ok to send to's
-                    //send the one 'to'
+            //ok to send to's
+            //send the one 'to' 
                pwt.println("RCPT TO:<" + email.getTo() + ">");
                pwt.flush();
             
-                    //now send DATA, then send actual email stuff
+            //now send DATA, then send actual email stuff
                reply =  scan.nextLine();
                if(reply.substring(0,3).equals("250")){
-                        //ok to send DATA
-                        //tell server I am sending an email over
+               //ok to send DATA
+               //tell server I am sending an email over
                   pwt.println("DATA");
                   pwt.flush();
                   reply =  scan.nextLine();
                   if(reply.substring(0,3).equals("354")){
-                            //send every data field in MailConstants
-                            //send if encrypted
-                     if(email.getEncrypted()){
-                        pwt.println("_ENCRYPTED_");
-                        pwt.flush();
-                     }else{
-                        pwt.println("_NOT_ENCRYPTED_");
-                        pwt.flush();
-                     }
+                  //send every data field in MailConstants
+                     
                      pwt.println("From:" + email.getFrom());
                      pwt.flush();
-                  
                      pwt.println("To:" + email.getTo());
                      pwt.flush();
-                  
                      pwt.println("Cc:" + email.getCC());
                      pwt.flush();
-                  
                      pwt.println("Date:" + email.getDate());
                      pwt.flush();
-                  
                      pwt.println("Subject:" + email.getSubject());
                      pwt.flush();
                   
-                            //send message
+                     //send if encrypted
+                     if(email.getEncrypted()){
+                        pwt.println("_ENCRYPTED_");
+                        pwt.flush();
+                     }
+                     else{
+                        pwt.println("_NOT-ENCRYPTED_");
+                        pwt.flush();
+                     }
+                  //send message
                      String[] message = email.getMessage().split("\n");
                      for(String line : message){//send message line by line
                         pwt.println(line);
-                        pwt.flush();
+                        pwt.flush();                     
                      }
-                            //endof message
-                            //send the carriage return lf
-                     System.out.println("end of message");
-                     pwt.println("\r\n.\r\n"); //SMTP required end of message ~~~~~~
+                  //endof message
+                  //send the carriage return lf 
+                     pwt.println("."); //SMTP required end of message ~~~~~~
                      pwt.flush();
-                     System.out.println("should have returned");
-                            //see if server responded with OK
-                     try{
-                        reply =  scan.nextLine();
-                     }
-                     catch(Exception e){}//catch to ignore no reply
-                     if(reply.contains("250")){
-                                //reply with QUIT
+                  //see if server responded with OK
+                     reply =  scan.nextLine();
+                     if(reply.substring(0,3).equals("250")){
+                     //reply with QUIT
                         pwt.println("QUIT");
                         pwt.flush();
                      
-                                //server replies with 221 bye
-                        try{
-                           reply =  scan.nextLine();
-                        }
-                        catch(Exception e){}//catch to ignore no reply
-                        if(reply.contains("221")){
-                                    //done sending email
-                           System.out.println("should dispose");
-                        
+                     //server replies with 221 bye
+                        reply =  scan.nextLine();
+                        if(reply.substring(0,3).equals("221")){
+                        //done sending email
                         }
                      
-                     }else{
+                     }
+                     else{
                         System.out.println("broke");
                      }
-                  }else{
+                  }
+                  else{
                      System.out.println("broke");
                   }
                
                
-               }else{
+               }
+               else{
                   System.out.println("broke");
                }
             
-            }else{
+            }
+            else{
                System.out.println("broke");
             
-            }
-         }else{
-                //SERVICE NOT AVAILABLE
+            } 
+         }
+         else{
+         //SERVICE NOT AVAILABLE
             System.out.println(reply);
             return;//break out of send
          }
       
-      }catch(Exception e){
+      }
+      catch(Exception e){
          e.printStackTrace();
       }
-      doKill();
    }
+
     
    public void doKill(){
     	
