@@ -1,7 +1,7 @@
 import java.util.*;
 
 /*
- * @author - Jordan K. Albrecht
+ * @author - Jordan K. Albrecht, Brennan Jackson, Rahul Shah, Ben Blair
  * FIFOQueue - a set of Queue methods used to store email object while they wait to be processed
  */
 
