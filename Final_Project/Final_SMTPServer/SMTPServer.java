@@ -7,7 +7,7 @@ import java.net.*;
 import javax.swing.text.*;
 
 /*
- * @author - Jordan K. Albrecht, Brennan Jackson
+ * @author - Jordan K. Albrecht, Brennan Jackson, Ben Blair, Rahul Shah
  * SMTPServer - main server class that handles SMTP protocol for recieving, processing, and relaying 
  * simple emails
  */
