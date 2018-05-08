@@ -3,7 +3,7 @@ import java.util.*;
 import java.net.*;
 
 /*
- * @author - Jordan K. Albrecht, Brennan Jackson
+ * @author - Jordan K. Albrecht, Brennan Jackson, Ben Blair, Rahul Shah
  * addUsers - simple script called by the main SMTPServer to create a new user.obj
  * file each time the server is started
  */
@@ -33,7 +33,8 @@ public class addUsers implements Serializable{
          ISTE.getEmail().add(new MailConstants(false, "Test", "Welcome Aboard", "None", "Today", "Welcome", "Welcome to our email server!"));
          
          InetAddress IP = InetAddress.getLocalHost();
-      
+         
+         /*Set IP addresses for all users to current Server IP*/
          brennan.setIP(IP.getHostAddress());
          student.setIP(IP.getHostAddress());
          test.setIP(IP.getHostAddress());
@@ -47,8 +48,8 @@ public class addUsers implements Serializable{
          userOut.writeObject(guest);
          userOut.writeObject(ISTE);
          userOut.writeObject(relay);
+         
          userFos.close();//close output stream
-         System.out.println("DONE");
       }
       /**@throws Exception - this catch is necessary for the try above*/
       catch(Exception e){System.out.println("Exception : " + e);}
