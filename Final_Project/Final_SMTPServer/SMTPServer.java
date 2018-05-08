@@ -318,18 +318,19 @@ public class SMTPServer extends JFrame implements ActionListener {
          }
       }
    
-      /*doSendMailbox*/
+      /**doSendMailbox - sends the logged in users mailbox to the client*/
       public synchronized void doSendMailbox() {
       
          try {
             Vector<MailConstants> sendBox;
             sendBox = clientUser.getEmail();
-            int count = sendBox.size();
+            int count = sendBox.size();//determine size of mailbox
             pwt.println("" + count);
             pwt.flush();
             for (int i = 0; i < count; i++) {
                MailConstants send = sendBox.get(i);
-               synchronized (clientSocket) {
+             //send all pieces of email to client  
+             synchronized (clientSocket) {
                   pwt.println(send.getTo());
                   pwt.flush();
                   pwt.println(send.getFrom());
@@ -346,8 +347,10 @@ public class SMTPServer extends JFrame implements ActionListener {
                   pwt.flush();
                }
             }
+            //append end of transfer to log
             jtaLog.append("Server: Mailbox Sent" + "\n");
-         
+          
+            /*ensure the mailbox was received, otherwise throw an error*/
             String receive = (String) scn.nextLine();
             if (receive.equals("RECEPTION COMPLETE")) {
                jtaLog.append(name + receive + "\n");
@@ -359,7 +362,9 @@ public class SMTPServer extends JFrame implements ActionListener {
          }
       }
       
-      /* doMail - handles most SMTP codes and is what is responsible for recieving emails from the client */
+      /* doMail - handles most SMTP codes and is what is responsible for recieving emails from the client
+      * Each section of the mail transfer is broken up into "Blocks" that handle one piece of the email
+      */
       public synchronized void doMail() {
          String response;
          String mailTo = "";
@@ -452,7 +457,7 @@ public class SMTPServer extends JFrame implements ActionListener {
             jtaLog.append(name + response + "\n");
             beginning = response.indexOf(":");
             subject = response.substring(beginning + 1);
-         
+           /*read in email message and look for the carraige return*/
             while (counter < 1) {
                response = scn.nextLine();
                if (response.equals("."))
@@ -469,7 +474,9 @@ public class SMTPServer extends JFrame implements ActionListener {
             jtaLog.append("Server: 250 OK" + "\n");
            
             /*DATA BLOCK END*/
-            MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
+            
+          /*add new email to the fifoqueue*/
+          MailConstants newEmail = new MailConstants(encrypt, mailTo, mailFrom, ccAddress, date, subject, message);
             fifo.enqueue(newEmail);
          
          }//try
@@ -479,6 +486,7 @@ public class SMTPServer extends JFrame implements ActionListener {
          }//end catch
       }//end doMail
    
+     /**doQuit - handles the QUIT command from the client.*/
       public synchronized void doQuit() {
          try {
             pwt.println("221 BYE");
